@@ -3,52 +3,54 @@ import axios from 'axios';
 import { TiUserAdd } from 'react-icons/ti';
 import Profile from '../assets/profile.jpg';
 import { Link, useParams } from 'react-router-dom';
-import ScrollToBottom from "react-scroll-to-bottom";
+import ScrollToBottom, { useScrollToBottom } from 'react-scroll-to-bottom'
+import { CiSearch } from "react-icons/ci";
+
 const Index = () => {
   const [messages, setMessage] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const { userId, recipientId } = useParams();
-  const messagesEndRef = useRef(null);
+  const scrollBottom = useScrollToBottom();
 
-  const scrollToBottom = () => {
-    messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-  };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [newMessage]);
- 
+    scrollBottom();
+  }, [])
 
 
- 
-  const sendMessage = async () => {
+
+
+  const sendMessage = () => {
+    console.log("sendMessage function called");
     if (newMessage.trim() === '') {
-      console.log("Enter a message");
       return;
     }
-
+  
     try {
-      await axios.post('http://localhost:5000/messages/', { sender: userId, recipient: recipientId, message: newMessage });
-
-      setMessage([...messages, { text: newMessage, sender_id: userId }]);
-
+       axios.post('http://localhost:5000/messages', { sender: userId, recipient: recipientId, message: newMessage });
+      
+      // Clear the input field by updating the state
       setNewMessage('');
+      console.log("Message sent and input cleared:", newMessage);
     } catch (error) {
       console.error('Error sending message:', error);
     }
   };
-
+  
 
   useEffect(() => {
     if (recipientId && userId) {
       fetchMessages();
+
     }
   }, [recipientId, userId, newMessage, messages]);
+
 
   const fetchMessages = async () => {
     try {
       const response = await axios.get(`http://localhost:5000/messages/${recipientId}/${userId}`);
       setMessage(response.data);
+
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
@@ -61,16 +63,16 @@ const Index = () => {
   };
   return (
     <div>
-      <div className="w-full h-32 bg-indigo-600"></div>
+      <div className="w-full h-32"></div>
       <div className="container  mx-auto mt-[-128px]">
         <div className=" h-screen">
-          <div className="flex border border-gray-400 rounded shadow-lg h-full">
+          <div className="flex   rounded shadow-lg h-full">
 
             <div className="w-1/3 border flex flex-col ">
 
-              <div className="py-2 px-3 bg-gray-800  flex flex-row justify-between items-center">
+              <div className="py-2 px-3 bg-gray-900  flex flex-row justify-between items-center">
                 <div className='py-2'>
-                  <h1 className='text-2xl font-bold text-white'>Chat <span className='px-2 rounded-md py-1 bg-orange-500 text-white'>Hub</span> </h1>
+                  <h1 className='text-2xl font-bold text-white' style={{fontFamily: 'Curetro'}}>Chat <span className='px-2 rounded-md py-1 bg-orange-500 text-white'>Hub</span> </h1>
                 </div>
 
                 <div className="flex items-center">
@@ -86,17 +88,18 @@ const Index = () => {
                 </div>
               </div>
 
-              <div className="py-2 px-2 bg-gray-800">
-                <input type="text" className="w-full px-2 py-2 text-sm" placeholder="Search or start new chat" />
+              <div className="py-2 px-2 bg-gray-900 bg-opacity-45 flex items-center">
+                <CiSearch className='text-2xl text-white' />
+                <input type="text" className="w-full px-2 py-2 text-sm bg-transparent" placeholder="Search or start new chat" />
               </div>
 
-              <div className="bg-gray-800 overflow-y-scroll flex-1 ">
+              <div className="bg-gray-900 bg-opacity-40 overflow-y-auto flex-1 ">
                 <Link to={'/messages/35/36'}>
-                  <div className="px-3 flex items-center bg-gray-600  cursor-pointer">
+                  <div className="px-3 flex items-center bg-gray-700 bg-opacity-35 cursor-pointer">
                     <div>
                       <img className="h-12 w-12 rounded-full" src={Profile} />
                     </div>
-                    <div className="ml-4 flex-1 border-b border-gray-300 py-4">
+                    <div className="ml-4 flex-1   py-4">
                       <div className="flex items-bottom justify-between">
                         <p className="text-white">
                           MJ Diez Aballe
@@ -106,20 +109,20 @@ const Index = () => {
                         </p>
                       </div>
                       <p className="text-white mt-1 text-sm">
-                        You: Wassup Foo!
+                        {/* I WANTED TO DO THAT HERE NOT IN THE CHAT SECTION */}
+
+                        {messages.length > 0 && messages[messages.length - 1].sender_id === parseInt(userId) ? "You:" : ''}
+                        {messages.length > 0 && <span className='px-1'>{messages[messages.length - 1].message}</span>}
                       </p>
                     </div>
                   </div>
                 </Link>
-
-
-
               </div>
             </div>
             <div className="w-2/3 border flex flex-col">
 
-              <div className="py-2 px-3 bg-gray-800 flex flex-row justify-between items-center">
-                {userId && recipientId && (
+              <div className="py-2 px-3 bg-gray-900 flex flex-row justify-between items-center">
+                {userId && recipientId ? (
                   <div className="flex items-center">
                     <div>
                       <img className="w-10 h-10 rounded-full" src={Profile} />
@@ -133,10 +136,16 @@ const Index = () => {
                       </p>
                     </div>
                   </div>
+                ) : (
+                  <div className="ml-4">
+                    <p className="text-white text-2xl py-2">
+                      SELECT A CONVERSATION
+                    </p>
+
+                  </div>
                 )}
 
                 {userId && recipientId && (
-
                   <div className="flex">
                     <div>
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 text-gray-700"><path fill="currentColor" d="M15.9 14.3H15l-.3-.3c1-1.1 1.6-2.7 1.6-4.3 0-3.7-3-6.7-6.7-6.7S3 6 3 9.7s3 6.7 6.7 6.7c1.6 0 3.2-.6 4.3-1.6l.3.3v.8l5.1 5.1 1.5-1.5-5-5.2zm-6.2 0c-2.6 0-4.6-2.1-4.6-4.6s2.1-4.6 4.6-4.6 4.6 2.1 4.6 4.6-2 4.6-4.6 4.6z"></path></svg>
@@ -151,43 +160,35 @@ const Index = () => {
                 )}
               </div>
 
-              <div className="flex-1 overflow-y-scroll bg-gray-700">
+              <ScrollToBottom className="flex-1 overflow-y-auto bg-gray-900 bg-opacity-40">
                 <div className="py-2 px-3">
-                  
-                  <ScrollToBottom className={`flex-1 bg-gray-700`} >
-                    <div  className="py-2 px-3">
-                      {messages.map((message, index) => (
-                        <div
-                          key={index}
-                          className={`col-start-1 col-end-8 py-2  rounded-lg ${message.sender_id === parseInt(userId)
-                            ? "flex items-center justify-start flex-row-reverse"
-                            : "flex  items-center"
-                            }`}
-                        >
-                          {message.sender_id === parseInt(userId) ? (
-                            <>
-                              <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 max-w-[15rem] break-words shadow rounded-bl-3xl rounded-tr-3xl rounded-tl-3xl">
-                                <div>{message.message}</div>
-                              </div>
-                            </>
-                          ) : (
-                            <div className="ml-2 py-2 px-2 bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl text-white">
+                  <div className="py-2 px-3">
+                    {messages.map((message, index) => (
+                      <div
+                        key={index}
+                        className={`col-start-1 col-end-8 py-2  rounded-lg ${message.sender_id === parseInt(userId)
+                          ? "flex items-center justify-start flex-row-reverse"
+                          : "flex  items-center"
+                          }`}
+                      >
+                        {message.sender_id === parseInt(userId) ? (
+                          <>
+                            <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 max-w-[15rem] break-words shadow rounded-bl-3xl rounded-tr-3xl rounded-tl-3xl">
                               <div>{message.message}</div>
                             </div>
-                          )}
-
-                        </div>
-                      ))}
-                        <div ref={messagesEndRef}></div>
-
-                      {/* Empty div used for scrolling to bottom */}
-                    </div>
-                  </ScrollToBottom>
-
+                          </>
+                        ) : (
+                          <div className="ml-2 py-2 px-2 bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl text-white">
+                            <div>{message.message}</div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-
-              <div className="bg-gray-800 px-4 py-4 flex items-center">
+              </ScrollToBottom>
+              
+              <div className="bg-gray-900 px-4 py-4 flex items-center">
                 <div>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 text-gray-700"><path opacity=".45" fill="currentColor" d="M9.153 11.603c.795 0 1.439-.879 1.439-1.962s-.644-1.962-1.439-1.962-1.439.879-1.439 1.962.644 1.962 1.439 1.962zm-3.204 1.362c-.026-.307-.131 5.218 6.063 5.551 6.066-.25 6.066-5.551 6.066-5.551-6.078 1.416-12.129 0-12.129 0zm11.363 1.108s-.669 1.959-5.051 1.959c-3.505 0-5.388-1.164-5.607-1.959 0 0 5.912 1.055 10.658 0zM11.804 1.011C5.609 1.011.978 6.033.978 12.228s4.826 10.761 11.021 10.761S23.02 18.423 23.02 12.228c.001-6.195-5.021-11.217-11.216-11.217zM12 21.354c-5.273 0-9.381-3.886-9.381-9.159s4.108-9.159 9.381-9.159 9.381 3.886 9.381 9.159-4.108 9.159-9.381 9.159z"></path></svg>
                 </div>
@@ -196,7 +197,7 @@ const Index = () => {
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    className="w-full bg-gray-100 px-3 py-2 rounded-full"
+                    className={`w-full bg-gray-100 px-3 py-2 rounded-full`}
                     placeholder="Type a message"
                     onKeyDown={handleKeyDown}
 
