@@ -11,7 +11,7 @@ function App() {
       <Particles id="tsparticles" />
       <div>
       <Routes>
-        <Route path="/contacts/:id" element={<Index />} />
+        <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/messages/:userId/:recipientId" element={<Index />} />

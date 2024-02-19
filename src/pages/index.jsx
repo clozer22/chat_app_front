@@ -2,20 +2,33 @@ import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { TiUserAdd } from 'react-icons/ti';
 import Profile from '../assets/profile.jpg';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import ScrollToBottom, { useScrollToBottom } from 'react-scroll-to-bottom'
 import { CiSearch } from "react-icons/ci";
+import Loading from '../components/Loading/Loading';
+import Cookies from 'js-cookie';
+import SuccessModal from '../components/Modals/SuccessModal';
+import '../Fonts/fonts.css'
 
 const Index = () => {
   const [messages, setMessage] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const { userId, recipientId } = useParams();
   const scrollBottom = useScrollToBottom();
+  const navigate = useNavigate();
+  const [showAlert, setShowAlert] = useState(false)
+
 
 
   useEffect(() => {
     scrollBottom();
   }, [])
+
+  useEffect(() => {
+    if(!Cookies.get("user_id")){
+      navigate('/login')
+    }
+  })
 
 
 
@@ -61,18 +74,27 @@ const Index = () => {
       sendMessage();
     }
   };
+
+  useEffect(() => {
+    const LoggedIn = Cookies.get("LoggedIn");
+    if(LoggedIn){
+      setShowAlert(true);
+      setTimeout(() => {
+        Cookies.remove("LoggedIn")
+        setShowAlert(false)
+      }, 5000)
+    }
+  }, [])
   return (
-    <div>
-      <div className="w-full h-32"></div>
-      <div className="container  mx-auto mt-[-128px]">
-        <div className=" h-screen">
-          <div className="flex   rounded shadow-lg h-full">
-
+    <div className='flex justify-center items-center w-full mx-0'>
+      {showAlert ? <SuccessModal label="Welcome to CHAT HUB" /> : null}
+      <div className=" w-full ">
+        <div className=" h-screen w-full">
+          <div className="flex w-full mx-0   rounded shadow-lg h-full">
             <div className="w-1/3 border flex flex-col ">
-
               <div className="py-2 px-3 bg-gray-900  flex flex-row justify-between items-center">
                 <div className='py-2'>
-                  <h1 className='text-2xl font-bold text-white' style={{fontFamily: 'Curetro'}}>Chat <span className='px-2 rounded-md py-1 bg-orange-500 text-white'>Hub</span> </h1>
+                  <h1 className='text-2xl font-bold text-white tracking-widest' style={{fontFamily: 'Curetro'}}>Chat <span className='px-2 rounded-md py-1 bg-orange-500 text-white'>Hub</span> </h1>
                 </div>
 
                 <div className="flex items-center">
@@ -84,6 +106,8 @@ const Index = () => {
                   </div>
                   <div className="ml-4">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 text-gray-700"><path fill="currentColor" d="M12 7a2 2 0 1 0-.001-4.001A2 2 0 0 0 12 7zm0 2a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 9zm0 6a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 15z"></path></svg>
+                  </div>
+                  <div>
                   </div>
                 </div>
               </div>
@@ -97,11 +121,11 @@ const Index = () => {
                 <Link to={'/messages/35/36'}>
                   <div className="px-3 flex items-center bg-gray-700 bg-opacity-35 cursor-pointer">
                     <div>
-                      <img className="h-12 w-12 rounded-full" src={Profile} />
+                      <img className="h-12 w-12 rounded-full" src={Profile} alt='' />
                     </div>
                     <div className="ml-4 flex-1   py-4">
                       <div className="flex items-bottom justify-between">
-                        <p className="text-white">
+                        <p className="text-white"style={{fontFamily: 'Curetro'}}>
                           MJ Diez Aballe
                         </p>
                         <p className="text-xs text-white">
@@ -109,8 +133,6 @@ const Index = () => {
                         </p>
                       </div>
                       <p className="text-white mt-1 text-sm">
-                        {/* I WANTED TO DO THAT HERE NOT IN THE CHAT SECTION */}
-
                         {messages.length > 0 && messages[messages.length - 1].sender_id === parseInt(userId) ? "You:" : ''}
                         {messages.length > 0 && <span className='px-1'>{messages[messages.length - 1].message}</span>}
                       </p>
@@ -128,7 +150,7 @@ const Index = () => {
                       <img className="w-10 h-10 rounded-full" src={Profile} />
                     </div>
                     <div className="ml-4">
-                      <p className="text-white">
+                      <p className="text-white" >
                         MJ Diez Aballe
                       </p>
                       <p className="text-white text-xs mt-1">
@@ -138,7 +160,7 @@ const Index = () => {
                   </div>
                 ) : (
                   <div className="ml-4">
-                    <p className="text-white text-2xl py-2">
+                    <p className="text-white text-2xl py-2 tracking-wider" style={{fontFamily: 'Curetro'}}>
                       SELECT A CONVERSATION
                     </p>
 
@@ -204,7 +226,7 @@ const Index = () => {
                   />
                 </div>
                 <div className="ml-4">
-                  <button onClick={sendMessage} className="bg-orange-500 font-bold px-4 py-2 rounded-full text-white">
+                  <button onClick={sendMessage} className="bg-orange-500 tracking-wider px-4 py-2 rounded-full text-white" style={{fontFamily: 'Curetro'}}>
                     Send
                   </button>
                 </div>
