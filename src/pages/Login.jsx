@@ -13,6 +13,7 @@ const Login = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false)
     const [showAlert, setShowAlert] = useState(false)
+    const [showAlertNotExist, setshowAlertNotExist] = useState(false)
     const [showPassword, setShowPassword] = useState(false); 
 
 
@@ -50,7 +51,7 @@ const Login = () => {
                 }
 
                 if(response.data.message === "Username is not exist"){
-                    setShowAlert(true)
+                    setshowAlertNotExist(true)
                     return;
                 }
 
@@ -83,6 +84,7 @@ const Login = () => {
     return (
         <div className="h-screen font-sans login bg-cover">
         {showAlert ? <ErrorModal setShowAlert1={setShowAlert} label="Wrong username/password combination!" /> : null}
+        {showAlertNotExist ? <ErrorModal setShowAlert1={setShowAlert} label="Username doesn't exist." /> : null}
       
             <div className="container mx-auto h-full flex flex-1 justify-center items-center">
                 <div className="w-full max-w-lg">

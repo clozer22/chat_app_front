@@ -1,14 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import axios from 'axios';
 import { TiUserAdd } from 'react-icons/ti';
 import Profile from '../assets/profile.jpg';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ScrollToBottom, { useScrollToBottom } from 'react-scroll-to-bottom'
 import { CiSearch } from "react-icons/ci";
-import Loading from '../components/Loading/Loading';
 import Cookies from 'js-cookie';
 import SuccessModal from '../components/Modals/SuccessModal';
+import { BsThreeDotsVertical } from "react-icons/bs";
+import EmojiPicker from 'emoji-picker-react';
 import '../Fonts/fonts.css'
+import { VscSmiley } from "react-icons/vsc";
+
 
 const Index = () => {
   const [messages, setMessage] = useState([]);
@@ -17,8 +20,18 @@ const Index = () => {
   const scrollBottom = useScrollToBottom();
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false)
+  const [userInfo, setUserInfo] = useState([]);
+  const user_id = Cookies.get("user_id");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-
+  const handleEmojiClick = (emojiData, event) => {
+    // Get the emoji character from emojiData
+    const emoji = emojiData.emoji;
+  
+    // Append the selected emoji to the existing message
+    setNewMessage(prevMessage => prevMessage + emoji);
+  };
+  
 
   useEffect(() => {
     scrollBottom();
@@ -41,8 +54,8 @@ const Index = () => {
   
     try {
        axios.post('http://localhost:5000/messages', { sender: userId, recipient: recipientId, message: newMessage });
-      
-      // Clear the input field by updating the state
+        // Update messages state with the new message
+      setMessage([...messages, { sender_id: parseInt(userId), message: newMessage }]);
       setNewMessage('');
       console.log("Message sent and input cleared:", newMessage);
     } catch (error) {
@@ -54,10 +67,8 @@ const Index = () => {
   useEffect(() => {
     if (recipientId && userId) {
       fetchMessages();
-
     }
-  }, [recipientId, userId, newMessage, messages]);
-
+  }, [recipientId, userId, messages]);
 
   const fetchMessages = async () => {
     try {
@@ -85,6 +96,29 @@ const Index = () => {
       }, 5000)
     }
   }, [])
+
+
+  useEffect(() => {
+    const user_id = Cookies.get("user_id");
+  
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/getUsers/${user_id}`);
+        if (response.data.message === "Successfully get all the users") {
+          setUserInfo(response.data.users);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    fetchData();
+  }, []);
+
+
+  
+  
+
   return (
     <div className='flex justify-center items-center w-full mx-0'>
       {showAlert ? <SuccessModal label="Welcome to CHAT HUB" /> : null}
@@ -117,55 +151,95 @@ const Index = () => {
                 <input type="text" className="w-full px-2 py-2 text-sm bg-transparent" placeholder="Search or start new chat" />
               </div>
 
-              <div className="bg-gray-900 bg-opacity-40 overflow-y-auto flex-1 ">
-                <Link to={'/messages/35/36'}>
-                  <div className="px-3 flex items-center bg-gray-700 bg-opacity-35 cursor-pointer">
-                    <div>
-                      <img className="h-12 w-12 rounded-full" src={Profile} alt='' />
-                    </div>
-                    <div className="ml-4 flex-1   py-4">
-                      <div className="flex items-bottom justify-between">
-                        <p className="text-white"style={{fontFamily: 'Curetro'}}>
-                          MJ Diez Aballe
-                        </p>
-                        <p className="text-xs text-white">
-                          12:45 pm
-                        </p>
-                      </div>
-                      <p className="text-white mt-1 text-sm">
-                        {messages.length > 0 && messages[messages.length - 1].sender_id === parseInt(userId) ? "You:" : ''}
-                        {messages.length > 0 && <span className='px-1'>{messages[messages.length - 1].message}</span>}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              </div>
+              <div className="bg-gray-900 bg-opacity-40 overflow-y-auto flex-1">
+                {userInfo.length === 0 && <h1 className='text-white text-2xl text-center pt-2 tracking-widest' style={{fontFamily: 'Curetro'}}>Connect with Others</h1>}
+              {userInfo.map((user, index) => {
+  const userMessages = messages.filter(
+    message =>
+      (message.sender_id === parseInt(userId) &&
+        message.receiver_id === parseInt(user.user_id)) ||
+      (message.sender_id === parseInt(user.user_id) &&
+        message.receiver_id === parseInt(userId))
+  );
+
+  const lastMessage =
+    userMessages.length > 0 ? userMessages[userMessages.length - 1] : null;
+
+  const conversationClosed = user.user_id !== parseInt(recipientId);
+
+  const lastMessageTime = lastMessage ? new Date(lastMessage.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+  const lastMessageSenderId = lastMessage ? lastMessage.sender_id : null;
+  const isLastMessageSentByCurrentUser = lastMessageSenderId === parseInt(userId);
+
+  return (
+    <a
+      key={index}
+      href={`/messages/${Cookies.get("user_id")}/${user.user_id}`}
+    >
+      <div className={`px-3 flex items-center mb-1 ${!conversationClosed ? 'bg-gray-500' : 'bg-gray-700'} bg-opacity-35 cursor-pointer`}>
+        <div>
+          <img className="h-12 w-12 rounded-full" src={Profile} alt="" />
+        </div>
+        <div className="ml-4 flex-1 py-4">
+          <div className="flex items-bottom justify-between">
+            <p className="text-white tracking-widest" style={{ fontFamily: "Curetro" }}>
+              {user.first_name} {user.last_name}
+            </p>
+            <p className="text-xs text-white">{lastMessageTime}</p> 
+          </div>
+          <p className="text-white mt-1 text-sm">
+            {lastMessage && isLastMessageSentByCurrentUser
+              ? "You: "
+              : ""}
+            {lastMessage && (
+              <span className="px-1">{lastMessage.message}</span>
+            )}
+          </p>
+          {conversationClosed && (
+            <p className="text-white mt-1 text-sm">
+              Click to open conversation
+            </p>
+          )}
+          {!conversationClosed && !lastMessage &&(
+            <p className="text-white mt-1 text-sm">
+              Send a message
+            </p>
+          )}
+        </div>
+      </div>
+    </a>
+  );
+})}
+
+</div>
             </div>
             <div className="w-2/3 border flex flex-col">
 
               <div className="py-2 px-3 bg-gray-900 flex flex-row justify-between items-center">
-                {userId && recipientId ? (
-                  <div className="flex items-center">
-                    <div>
-                      <img className="w-10 h-10 rounded-full" src={Profile} />
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-white" >
-                        MJ Diez Aballe
-                      </p>
-                      <p className="text-white text-xs mt-1">
-                        Active now
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="ml-4">
-                    <p className="text-white text-2xl py-2 tracking-wider" style={{fontFamily: 'Curetro'}}>
-                      SELECT A CONVERSATION
-                    </p>
-
-                  </div>
-                )}
+              {userId && recipientId ? (
+  <div className="flex items-center">
+    <div>
+      <img className="w-10 h-10 rounded-full" src={Profile} />
+    </div>
+    <div className="ml-4">
+      {userInfo.map(user => {
+        if (user.user_id === parseInt(recipientId)) {
+          return (
+            <React.Fragment key={user.user_id}>
+              <p className="text-white text-lg">{user.first_name} {user.last_name}</p>
+              <p className="text-white text-sm">{user.status}</p>
+              {/* Add code to display user's status */}
+            </React.Fragment>
+          );
+        }
+        return null;
+      })}
+    </div>
+  </div>
+) : (
+  ''
+)}
 
                 {userId && recipientId && (
                   <div className="flex">
@@ -185,7 +259,9 @@ const Index = () => {
               <ScrollToBottom className="flex-1 overflow-y-auto bg-gray-900 bg-opacity-40">
                 <div className="py-2 px-3">
                   <div className="py-2 px-3">
-                    {messages.map((message, index) => (
+                    {
+                    userId && recipientId ?
+                    messages.map((message, index) => (
                       <div
                         key={index}
                         className={`col-start-1 col-end-8 py-2  rounded-lg ${message.sender_id === parseInt(userId)
@@ -198,21 +274,34 @@ const Index = () => {
                             <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 max-w-[15rem] break-words shadow rounded-bl-3xl rounded-tr-3xl rounded-tl-3xl">
                               <div>{message.message}</div>
                             </div>
+                            <span className='px-1 py-1 rounded-full hover:bg-gray-500 mr-2 bg-opacity-35'>
+                            <BsThreeDotsVertical className='text-white cursor-pointer' />
+                            </span>
                           </>
                         ) : (
+                          <>
                           <div className="ml-2 py-2 px-2 bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl text-white">
                             <div>{message.message}</div>
                           </div>
+                          <span className='px-1 py-1 rounded-full hover:bg-gray-500 mr-2 bg-opacity-35'>
+                          <BsThreeDotsVertical className='text-white cursor-pointer' />
+                          </span>
+                          </>
                         )}
                       </div>
-                    ))}
+                    )) : <div className='flex justify-center items-center h-full'>
+                      <h1 className='text-[2rem] text-white absolute top-[15rem]'  style={{fontFamily: 'Curetro'}}>No chats selected</h1>
+                      </div>}
                   </div>
                 </div>
               </ScrollToBottom>
               
               <div className="bg-gray-900 px-4 py-4 flex items-center">
                 <div>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 text-gray-700"><path opacity=".45" fill="currentColor" d="M9.153 11.603c.795 0 1.439-.879 1.439-1.962s-.644-1.962-1.439-1.962-1.439.879-1.439 1.962.644 1.962 1.439 1.962zm-3.204 1.362c-.026-.307-.131 5.218 6.063 5.551 6.066-.25 6.066-5.551 6.066-5.551-6.078 1.416-12.129 0-12.129 0zm11.363 1.108s-.669 1.959-5.051 1.959c-3.505 0-5.388-1.164-5.607-1.959 0 0 5.912 1.055 10.658 0zM11.804 1.011C5.609 1.011.978 6.033.978 12.228s4.826 10.761 11.021 10.761S23.02 18.423 23.02 12.228c.001-6.195-5.021-11.217-11.216-11.217zM12 21.354c-5.273 0-9.381-3.886-9.381-9.159s4.108-9.159 9.381-9.159 9.381 3.886 9.381 9.159-4.108 9.159-9.381 9.159z"></path></svg>
+                <button className='text-2xl text-white' onClick={() => setShowEmojiPicker(!showEmojiPicker)}><VscSmiley /></button>
+                {showEmojiPicker && (
+                 <div className='absolute top-[7rem]'> <EmojiPicker onEmojiClick={handleEmojiClick} /></div>
+                )}
                 </div>
                 <div className="flex-1 ml-4">
                   <input
