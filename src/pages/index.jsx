@@ -1,19 +1,20 @@
-import React, { useEffect, useId, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { TiUserAdd } from "react-icons/ti";
 import Profile from "../assets/profile.jpg";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ScrollToBottom, { useScrollToBottom } from "react-scroll-to-bottom";
 import { CiSearch } from "react-icons/ci";
 import Cookies from "js-cookie";
 import SuccessModal from "../components/Modals/SuccessModal";
+import ErrorModal from "../components/Modals/ErrorModal";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import EmojiPicker from "emoji-picker-react";
 import "../Fonts/fonts.css";
 import { VscSmiley } from "react-icons/vsc";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaTimes } from "react-icons/fa";
 import Loading from "../components/Loading/Loading";
-
+import { useFetchUser } from "../components/CustomHook/CustomHook";
 
 const Index = () => {
   const [messages, setMessage] = useState([]);
@@ -23,17 +24,22 @@ const Index = () => {
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
   const [userInfo, setUserInfo] = useState([]);
-  const user_id = Cookies.get("user_id");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isFormOpen, setFormOpen] = useState(false);
   const [isLoading, setLoading] = useState(false);
-  
+  const [userName, setUserName] = useState("");
+  const [sendUserId, setUserId] = useState("");
+  const [showNotExistModal, setShowNotExistModal] = useState(false);
+  const [showAlreadyFriend, setShowAlreadyFriend] = useState(false);
+  const [showAddedModal, setAddedModal] = useState(false);
+  const [userData, setUserData] = useState([]);
+  const user_id = Cookies.get("user_id");
+
 
   const handleEmojiClick = (emojiData, event) => {
-    // Get the emoji character from emojiData
     const emoji = emojiData.emoji;
 
-    // Append the selected emoji to the existing message
     setNewMessage((prevMessage) => prevMessage + emoji);
   };
 
@@ -59,7 +65,6 @@ const Index = () => {
         recipient: recipientId,
         message: newMessage,
       });
-      // Update messages state with the new message
       setMessage([
         ...messages,
         { sender_id: parseInt(userId), message: newMessage },
@@ -125,44 +130,110 @@ const Index = () => {
   }, [messages]);
 
   const handleMenuOpen = () => {
-    if(!isMenuOpen){
-      setIsMenuOpen(true)
-    }else{
-      setIsMenuOpen(false)
+    if (!isMenuOpen) {
+      setIsMenuOpen(true);
+    } else {
+      setIsMenuOpen(false);
     }
-  }
+  };
 
-  const handleLogout = async() => {
+  const handleFormOpen = () => {
+    setFormOpen(!isFormOpen);
+  };
+
+  const handleLogout = async () => {
     const userId = Cookies.get("user_id");
-    setLoading(true)
+    setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      axios.post('http://localhost:5000/logout', { userId })
-        .then(response => {
-          if (response.data.message === 'Logged out successfully') {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      axios
+        .post("http://localhost:5000/logout", { userId })
+        .then((response) => {
+          if (response.data.message === "Logged out successfully") {
             Cookies.remove("user_id");
-            navigate('/login');
+            navigate("/login");
           } else {
             console.log("may mali");
           }
         })
-        .catch(error => {
-          console.error('Error logging out:', error);
-          // Handle error
+        .catch((error) => {
+          console.error("Error logging out:", error);
         })
         .finally(() => {
           setLoading(false);
         });
     } catch (error) {
-      console.error('Error logging out:', error);
-      // Handle error
+      console.error("Error logging out:", error);
     }
   };
+
+  const handleSendRequest = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setFormOpen(false);
+    const user_id = Cookies.get("user_id");
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await axios.post(
+        "http://localhost:5000/sendFriendRequest",
+        { userId: user_id, userName: userName, sentUserId: sendUserId }
+      );
+
+      if (response.data.message === "Successfully sent") {
+        console.log(response.data.message);
+        setAddedModal(true);
+        window.location.reload();
+        return;
+      }
+
+      if (response.data.message === "That user is not exist.") {
+        setShowNotExistModal(true);
+        return;
+      }
+      if (response.data.message === "That user is already your friend.") {
+        setShowAlreadyFriend(true);
+        return;
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/getUserData/${user_id}`);
+          setUserData(response.data.user_data);
+          console.log(response.data.user_data)
+     
+      } catch (error) {
+      }
+    };
+    fetchData();
+    return () => {
+    };
+  }, [user_id]); 
 
   return (
     <div className="flex justify-center items-center w-full mx-0">
       {showAlert ? <SuccessModal label="Welcome to CHAT HUB" /> : null}
+      {showAddedModal ? <SuccessModal label="Added Successfully" /> : null}
       {isLoading && <Loading />}
+      {showNotExistModal && (
+        <ErrorModal
+          setShowAlert1={setShowNotExistModal}
+          label="User doesn't exist"
+        />
+      )}
+      {showAlreadyFriend && (
+        <ErrorModal
+          setShowAlert1={setShowAlreadyFriend}
+          label="That user is already your friend."
+        />
+      )}
       <div className=" w-full ">
         <div className=" h-screen w-full">
           <div className="flex w-full mx-0   rounded shadow-lg h-full">
@@ -180,17 +251,80 @@ const Index = () => {
                   </h1>
                 </div>
                 <div className="flex items-center">
-                  <div>
-                    <TiUserAdd className="text-white text-2xl" />
+                  <div className="relative">
+                    <TiUserAdd
+                      onClick={handleFormOpen}
+                      className="text-white text-2xl cursor-pointer"
+                    />
+                    {isFormOpen && (
+                      <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50 bg-black bg-opacity-55">
+                        <div className="absolute inset-0 flex justify-center items-center">
+                          <div className="absolute bg-gray-900 flex  justify-center items-center px-5 rounded-md">
+                            <div className="absolute top-2 right-2">
+                              <FaTimes
+                                onClick={handleFormOpen}
+                                className="text-2xl text-white cursor-pointer"
+                              />
+                            </div>
+                            <form
+                              action=""
+                              method="post"
+                              onSubmit={handleSendRequest}
+                            >
+                              <h1
+                                className="text-white text-center text-2xl py-5"
+                                style={{ fontFamily: "Curetro" }}
+                              >
+                                SEND A FRIEND REQUEST
+                              </h1>
+                              <input
+                                type="text"
+                                id="username"
+                                value={userName}
+                                onChange={(e) => setUserName(e.target.value)}
+                                placeholder="Username"
+                                className="mr-2 focus:outline-none py-2 border-none rounded-md bg-gray-700 px-2 text-white placeholder:text-gray-300"
+                              />
+                              <input
+                                type="number"
+                                id="userId"
+                                value={sendUserId}
+                                onChange={(e) => setUserId(e.target.value)}
+                                placeholder="User ID"
+                                min={0}
+                                className="focus:outline-none py-2 border-none rounded-md bg-gray-700 px-2 text-white placeholder:text-gray-300"
+                              />
+                              <div className="w-full mx-auto">
+                                <button
+                                  type="submit"
+                                  className="mx-auto flex px-4 py-2 rounded-md bg-orange-500 text-white my-4 tracking-widest"
+                                  style={{ fontFamily: "Curetro" }}
+                                >
+                                  Send
+                                </button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="ml-4 relative">
-                  <BsThreeDotsVertical onClick={handleMenuOpen} className="text-white text-2xl cursor-pointer" />
-                  {isMenuOpen && (
-                    <div className="absolute bg-white px-2 py-2 right-0 rounded-md">
-                    <button type="submit" onClick={handleLogout} className="whitespace-nowrap text-red-500 font-bold">Sign Out</button>
-                    </div>
-                  )}
-                 
+                    <BsThreeDotsVertical
+                      onClick={handleMenuOpen}
+                      className="text-white text-2xl cursor-pointer"
+                    />
+                    {isMenuOpen && (
+                      <div className="absolute bg-white px-2 py-2 right-0 rounded-md">
+                        <button
+                          type="submit"
+                          onClick={handleLogout}
+                          className="whitespace-nowrap text-red-500 font-bold"
+                        >
+                          Sign Out
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -213,96 +347,121 @@ const Index = () => {
                     Connect with Others
                   </h1>
                 )}
-                {userInfo.map((user, index) => {
-                  const userMessages = messages.filter(
-                    (message) =>
-                      (message.sender_id === parseInt(userId) &&
-                        message.receiver_id === parseInt(user.user_id)) ||
-                      (message.sender_id === parseInt(user.user_id) &&
-                        message.receiver_id === parseInt(userId))
-                  );
+                {userInfo.length > 0
+                  ? userInfo.map((user, index) => {
+                      const userMessages = messages.filter(
+                        (message) =>
+                          (message.sender_id === parseInt(userId) &&
+                            message.receiver_id === parseInt(user.user_id)) ||
+                          (message.sender_id === parseInt(user.user_id) &&
+                            message.receiver_id === parseInt(userId))
+                      );
 
-                  const lastMessage =
-                    userMessages.length > 0
-                      ? userMessages[userMessages.length - 1]
-                      : null;
+                      const lastMessage =
+                        userMessages.length > 0
+                          ? userMessages[userMessages.length - 1]
+                          : null;
 
-                  const conversationClosed =
-                    user.user_id !== parseInt(recipientId);
+                      const conversationClosed =
+                        user.user_id !== parseInt(recipientId);
 
-                  const lastMessageTime = lastMessage
-                    ? new Date(lastMessage.time).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : "";
+                      const lastMessageTime = lastMessage
+                        ? new Date(lastMessage.time).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "";
 
-                  const lastMessageSenderId = lastMessage
-                    ? lastMessage.sender_id
-                    : null;
-                  const isLastMessageSentByCurrentUser =
-                    lastMessageSenderId === parseInt(userId);
+                      const lastMessageSenderId = lastMessage
+                        ? lastMessage.sender_id
+                        : null;
+                      const isLastMessageSentByCurrentUser =
+                        lastMessageSenderId === parseInt(userId);
 
-                  return (
-                    <a
-                      key={index}
-                      href={`/messages/${Cookies.get("user_id")}/${
-                        user.user_id
-                      }`}
-                    >
-                      <div
-                        className={`px-3 flex items-center mb-1 ${
-                          !conversationClosed ? "bg-gray-500" : "bg-gray-700"
-                        } bg-opacity-35 cursor-pointer`}
-                      >
-                        <div>
-                          <img
-                            className={`h-12 w-12 rounded-full border-4 ${
-                              user.status === "Active Now"
-                                ? "border-green-500"
-                                : "border-gray-500"
-                            }`}
-                            src={require(`../assets/${user.profile_img}`)}
-                            alt=""
-                          />
-                        </div>
-                        <div className="ml-4 flex-1 py-4">
-                          <div className="flex items-bottom justify-between">
-                            <p
-                              className="text-white tracking-widest"
-                              style={{ fontFamily: "Curetro" }}
-                            >
-                              {user.first_name} {user.last_name}
-                            </p>
-                            <p className="text-xs text-white">
-                              {lastMessageTime}
-                            </p>
+                      return (
+                        <a
+                          key={index}
+                          href={`/messages/${Cookies.get("user_id")}/${
+                            user.user_id
+                          }`}
+                        >
+                          <div
+                            className={`px-3 flex items-center mb-1 ${
+                              !conversationClosed
+                                ? "bg-gray-500"
+                                : "bg-gray-700"
+                            } bg-opacity-35 cursor-pointer`}
+                          >
+                            <div>
+                              <img
+                                className={`h-12 w-12 rounded-full border-4 ${
+                                  user.status === "Active Now"
+                                    ? "border-green-500"
+                                    : "border-gray-500"
+                                }`}
+                                src={require(`../assets/${
+                                  user.profile_img
+                                    ? user.profile_img
+                                    : "defaultPic.png"
+                                }`)}
+                                alt=""
+                              />
+                            </div>
+                            <div className="ml-4 flex-1 py-4">
+                              <div className="flex items-bottom justify-between">
+                                <p
+                                  className="text-white tracking-widest"
+                                  style={{ fontFamily: "Curetro" }}
+                                >
+                                  {user.first_name} {user.last_name}
+                                </p>
+                                <p className="text-xs text-white">
+                                  {lastMessageTime}
+                                </p>
+                              </div>
+                              <p className="text-white mt-1 text-sm">
+                                {lastMessage && isLastMessageSentByCurrentUser
+                                  ? "You: "
+                                  : ""}
+                                {lastMessage && (
+                                  <span className="px-1">
+                                    {lastMessage.message}
+                                  </span>
+                                )}
+                              </p>
+                              {conversationClosed && (
+                                <p className="text-white mt-1 text-sm">
+                                  Click to open conversation
+                                </p>
+                              )}
+                              {!conversationClosed && !lastMessage && (
+                                <p className="text-white mt-1 text-sm">
+                                  Send a message
+                                </p>
+                              )}
+                            </div>
                           </div>
-                          <p className="text-white mt-1 text-sm">
-                            {lastMessage && isLastMessageSentByCurrentUser
-                              ? "You: "
-                              : ""}
-                            {lastMessage && (
-                              <span className="px-1">
-                                {lastMessage.message}
-                              </span>
-                            )}
-                          </p>
-                          {conversationClosed && (
-                            <p className="text-white mt-1 text-sm">
-                              Click to open conversation
-                            </p>
-                          )}
-                          {!conversationClosed && !lastMessage && (
-                            <p className="text-white mt-1 text-sm">
-                              Send a message
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </a>
-                  );
-                })}
+                        </a>
+                      );
+                    })
+                  : ""}
+              </div>
+              <div className="w-full bg-gray-900 h-[4.5rem] grid grid-cols-5">
+                {userData.map((user, index) => (
+                  <>
+                  <div className="flex justify-start items-center gap-2 p-2 col-span-3">
+                    <img src={require(`../assets/${user.profile_img ? user.profile_img : 'defaultPic.png'}`)} className={`h-12 w-12 border-2 rounded-full ${user.status === 'Active Now' ? 'border-green-500' : 'border-gray-500'}`} alt="" />
+                  <div>
+                  <h1 className="text-white text-md tracking-widest whitespace-nowrap"  style={{ fontFamily: "Curetro" }}>{user.first_name} {user.last_name}</h1>
+                  <p className="text-white tracking-wider font-bold" >ID: {user.user_id}</p>
+                  </div>
+                </div>
+                <div className="flex justify-center items-center col-span-2">
+                  <button onClick={handleLogout} className="px-4 py-2 border-none bg-gray-600 hover:bg-gray-700 duration-300 text-white rounded-md">Log out</button>
+                </div>
+                  </>
+                ))}
+
               </div>
             </div>
             <div
@@ -320,7 +479,11 @@ const Index = () => {
                             <div>
                               <img
                                 className="w-10 h-10 rounded-full"
-                                src={require(`../assets/${user.profile_img}`)}
+                                src={require(`../assets/${
+                                  user.profile_img
+                                    ? user.profile_img
+                                    : "defaultPic.png"
+                                }`)}
                                 alt=""
                               />
                             </div>
@@ -477,45 +640,61 @@ const Index = () => {
                     return (
                       <>
                         <div className="w-full h-[10rem] border-4 border-gray-500 flex justify-center items-center relative overflow-hidden object-cover object-center bg-center bg-cover">
-                          {/* <h1
-                            className="text-2xl font-bold text-white tracking-widest"
-                            style={{ fontFamily: "Curetro" }}
-                          >
-                            Chat{" "}
-                            <span className="px-2 rounded-md py-1 bg-orange-500 text-black">
-                              Hub
-                            </span>{" "}
-                          </h1> */}
-
-                          <img src={require(`../assets/varon_bg2.png`)} alt="" />
+                          <img
+                            src={require(`../assets/varon_bg2.png`)}
+                            alt=""
+                          />
                           <div className="absolute inline-block right-0 bottom-0 p-2">
-                            <label htmlFor="fileInput" className="cursor-pointer bg-white opacity-40 hover:opacity-100 text-black font-bold   rounded">
+                            <label
+                              htmlFor="fileInput"
+                              className="cursor-pointer bg-white opacity-40 hover:opacity-100 text-black font-bold   rounded"
+                            >
                               <FaEdit className="text-2xl" />
                             </label>
-                            <input id="fileInput" type="file" className="hidden" />
+                            <input
+                              id="fileInput"
+                              type="file"
+                              className="hidden"
+                            />
                           </div>
                         </div>
                         <div className=" h-full relative flex justify-center items-center">
-                        <div className="absolute left-2 top-[-4rem]">
+                          <div className="absolute left-2 top-[-4rem]">
                             <img
                               className={`w-[7rem] h-[7rem] rounded-full border-4 ${
                                 user.status === "Active Now"
                                   ? "border-green-500"
                                   : "border-gray-500"
                               } `}
-                              src={require(`../assets/${user.profile_img}`)}
+                              src={require(`../assets/${
+                                user.profile_img
+                                  ? user.profile_img
+                                  : "defaultPic.png"
+                              }`)}
                               alt=""
                             />
                           </div>
                           <div className="w-3/4 h-2/4 rounded-lg bg-gray-800 p-4">
-                            <h1 className="text-white tracking-widest" style={{ fontFamily: "Curetro" }}>{user.first_name} {user.last_name}</h1>
-                            <p className="text-white">USER ID: {user.user_id}</p>
+                            <h1
+                              className="text-white tracking-widest"
+                              style={{ fontFamily: "Curetro" }}
+                            >
+                              {user.first_name} {user.last_name}
+                            </h1>
+                            <p className="text-white">
+                              USER ID: {user.user_id}
+                            </p>
                             <div className="border-b border-gray-500 w-full"></div>
-                           <div className="mt-5">
-                           <h1 className="text-white tracking-widest" style={{ fontFamily: "Curetro" }}>STATUS</h1>
-                            <p className="text-white">{user.status}</p>
-                            <div className="border-b border-gray-500 w-full"></div>
-                           </div>
+                            <div className="mt-5">
+                              <h1
+                                className="text-white tracking-widest"
+                                style={{ fontFamily: "Curetro" }}
+                              >
+                                STATUS
+                              </h1>
+                              <p className="text-white">{user.status}</p>
+                              <div className="border-b border-gray-500 w-full"></div>
+                            </div>
                           </div>
                         </div>
                       </>
