@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { TiUserAdd } from "react-icons/ti";
 import Profile from "../assets/profile.jpg";
@@ -33,9 +33,13 @@ const Index = () => {
   const [showNotExistModal, setShowNotExistModal] = useState(false);
   const [showAlreadyFriend, setShowAlreadyFriend] = useState(false);
   const [showAddedModal, setAddedModal] = useState(false);
+  const [isDeleteFormOpen, setDeleteFormOpen] = useState(false);
+  const [isRemovedOpen, setRemovedOpen] = useState(false);
+  const [deleted, setDeleted] = useState(false);
   const [userData, setUserData] = useState([]);
+  const [isShowUnsend, setShowUnsend] = useState(null);
   const user_id = Cookies.get("user_id");
-
+  const [selectedMessageId, setSelectedMessageId] = useState(null);
 
   const handleEmojiClick = (emojiData, event) => {
     const emoji = emojiData.emoji;
@@ -70,19 +74,12 @@ const Index = () => {
         { sender_id: parseInt(userId), message: newMessage },
       ]);
       setNewMessage("");
-      console.log("Message sent and input cleared:", newMessage);
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
 
-  useEffect(() => {
-    if (recipientId && userId) {
-      fetchMessages();
-    }
-  }, [recipientId, userId, messages]);
-
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       const response = await axios.get(
         `http://localhost:5000/messages/${recipientId}/${userId}`
@@ -91,7 +88,13 @@ const Index = () => {
     } catch (error) {
       console.error("Error fetching messages:", error);
     }
-  };
+  }, [recipientId, userId]);
+
+  useEffect(() => {
+    if (recipientId && userId) {
+      fetchMessages();
+    }
+  }, [recipientId, userId, fetchMessages, messages]);
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -201,26 +204,81 @@ const Index = () => {
     }
   };
 
+  const handleDeleteForm = () => {
+    setDeleteFormOpen(!isDeleteFormOpen);
+  };
+
+  const handleRemovedForm = () => {
+    setRemovedOpen(!isRemovedOpen);
+  };
+
+  const handleDeleteConvo = async (e, messageId) => {
+    e.preventDefault();
+    setLoading(true);
+    setDeleteFormOpen(false);
+    setShowUnsend(false)
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await axios.post(
+        `http://localhost:5000/deleteMessage/${messageId}`
+      );
+      if (response.data.message === "Deleted successfully") {
+        setDeleted(true);
+        setMessage([]);
+        return;
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemove = async (e, messageId) => {
+    e.preventDefault();
+    setLoading(true);
+    setRemovedOpen(false);
+    setShowUnsend(false)
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await axios.post(
+        `http://localhost:5000/removeMessage/${messageId}`
+      );
+      if (response.data.message === "Deleted successfully") {
+        setDeleted(true);
+        setMessage([]);
+        return;
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/getUserData/${user_id}`);
-          setUserData(response.data.user_data);
-          console.log(response.data.user_data)
-     
-      } catch (error) {
-      }
+        const response = await axios.get(
+          `http://localhost:5000/getUserData/${user_id}`
+        );
+        setUserData(response.data.user_data);
+        console.log(response.data.user_data);
+      } catch (error) {}
     };
     fetchData();
-    return () => {
-    };
-  }, [user_id]); 
+    return () => {};
+  }, [user_id]);
 
+  const handleShowUnsend = (index, messageId) => {
+    setShowUnsend((prevIndex) => (prevIndex === index ? null : index));
+    setSelectedMessageId(messageId);
+  };
   return (
     <div className="flex justify-center items-center w-full mx-0">
       {showAlert ? <SuccessModal label="Welcome to CHAT HUB" /> : null}
       {showAddedModal ? <SuccessModal label="Added Successfully" /> : null}
+
       {isLoading && <Loading />}
       {showNotExistModal && (
         <ErrorModal
@@ -449,19 +507,40 @@ const Index = () => {
               <div className="w-full bg-gray-900 h-[4.5rem] grid grid-cols-5">
                 {userData.map((user, index) => (
                   <>
-                  <div className="flex justify-start items-center gap-2 p-2 col-span-3">
-                    <img src={require(`../assets/${user.profile_img ? user.profile_img : 'defaultPic.png'}`)} className={`h-12 w-12 border-2 rounded-full ${user.status === 'Active Now' ? 'border-green-500' : 'border-gray-500'}`} alt="" />
-                  <div>
-                  <h1 className="text-white text-md tracking-widest whitespace-nowrap"  style={{ fontFamily: "Curetro" }}>{user.first_name} {user.last_name}</h1>
-                  <p className="text-white tracking-wider font-bold" >ID: {user.user_id}</p>
-                  </div>
-                </div>
-                <div className="flex justify-center items-center col-span-2">
-                  <button onClick={handleLogout} className="px-4 py-2 border-none bg-gray-600 hover:bg-gray-700 duration-300 text-white rounded-md">Log out</button>
-                </div>
+                    <div className="flex justify-start items-center gap-2 p-2 col-span-3">
+                      <img
+                        src={require(`../assets/${
+                          user.profile_img ? user.profile_img : "defaultPic.png"
+                        }`)}
+                        className={`h-12 w-12 border-2 rounded-full ${
+                          user.status === "Active Now"
+                            ? "border-green-500"
+                            : "border-gray-500"
+                        }`}
+                        alt=""
+                      />
+                      <div>
+                        <h1
+                          className="text-white text-md tracking-widest whitespace-nowrap"
+                          style={{ fontFamily: "Curetro" }}
+                        >
+                          {user.first_name} {user.last_name}
+                        </h1>
+                        <p className="text-white tracking-wider font-bold">
+                          ID: {user.user_id}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex justify-center items-center col-span-2">
+                      <button
+                        onClick={handleLogout}
+                        className="px-4 py-2 border-none bg-gray-600 hover:bg-gray-700 duration-300 text-white rounded-md"
+                      >
+                        Log out
+                      </button>
+                    </div>
                   </>
                 ))}
-
               </div>
             </div>
             <div
@@ -565,20 +644,60 @@ const Index = () => {
                           {message.sender_id === parseInt(userId) ? (
                             <>
                               <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 max-w-[15rem] break-words shadow rounded-bl-3xl rounded-tr-3xl rounded-tl-3xl">
-                                <div>{message.message}</div>
+                                <div>
+                                  {message.message}
+                                </div>
                               </div>
-                              <span className="px-1 py-1 rounded-full hover:bg-gray-500 mr-2 bg-opacity-35">
-                                <BsThreeDotsVertical className="text-white cursor-pointer" />
-                              </span>
+                              <div className="relative px-1 py-1 rounded-full  mr-2 bg-opacity-35">
+                                {isShowUnsend === index && (
+                                  <div
+                                    key={index}
+                                    className="bg-gray-500 top-[-2rem] left-[-4rem] absolute px-2 py-2 rounded-md"
+                                  >
+                                    <button
+                                      onClick={handleDeleteForm}
+                                      name="delete"
+                                      className="whitespace-nowrap text-white  duration-300 rounded-md"
+                                    >
+                                      Unsend
+                                    </button>
+                                  </div>
+                                )}
+                                <BsThreeDotsVertical
+                                  onClick={() =>
+                                    handleShowUnsend(index, message.message_id)
+                                  }
+                                  className="text-white cursor-pointer"
+                                />
+                              </div>
                             </>
                           ) : (
                             <>
                               <div className="ml-2 py-2 px-2 bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl text-white">
                                 <div>{message.message}</div>
                               </div>
-                              <span className="px-1 py-1 rounded-full hover:bg-gray-500 mr-2 bg-opacity-35">
-                                <BsThreeDotsVertical className="text-white cursor-pointer" />
-                              </span>
+                              <div className="relative px-1 py-1 rounded-full  mr-2 bg-opacity-35">
+                                {isShowUnsend === index && (
+                                  <div
+                                    key={index}
+                                    className="bg-gray-500 top-[-2.5rem] right-[-7rem] absolute px-2 py-2 rounded-md"
+                                  >
+                                    <button
+                                    onClick={handleRemovedForm}
+                                      name="remove"
+                                      className="whitespace-nowrap text-white  duration-300 rounded-md"
+                                    >
+                                      Remove for you
+                                    </button>
+                                  </div>
+                                )}
+                                <BsThreeDotsVertical
+                                  onClick={() =>
+                                    handleShowUnsend(index, message.message_id)
+                                  }
+                                  className="text-white cursor-pointer"
+                                />
+                              </div>
                             </>
                           )}
                         </div>
@@ -695,6 +814,114 @@ const Index = () => {
                               <p className="text-white">{user.status}</p>
                               <div className="border-b border-gray-500 w-full"></div>
                             </div>
+                            <div className="mt-5">
+                              <h1
+                                className="text-white tracking-widest"
+                                style={{ fontFamily: "Curetro" }}
+                              >
+                                Conversation Options
+                              </h1>
+                              <div className="flex justify-start items-center gap-2 py-2">
+                                <button className="whitespace-nowrap text-white px-2 py-1 bg-red-600 hover:bg-red-700 duration-300 rounded-md">
+                                  Unfriend
+                                </button>
+                              </div>
+                              <div className="border-b border-gray-500 w-full"></div>
+                            </div>
+                            {isDeleteFormOpen && (
+                              <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50 bg-black bg-opacity-55">
+                                <div className="absolute inset-0 flex justify-center items-center">
+                                  <div className="absolute bg-gray-900 flex  justify-center items-center px-5 rounded-md">
+                                    <div className="absolute top-2 right-2"></div>
+                                    <form
+                                      action=""
+                                      method="post"
+                                      onSubmit={(e) =>
+                                        handleDeleteConvo(e, selectedMessageId)
+                                      }
+                                    >
+                                      <div className="w-full m-5">
+                                        <h2
+                                          className="text-white tracking-widest"
+                                          style={{ fontFamily: "Curetro" }}
+                                        >
+                                          Are you sure?
+                                        </h2>
+                                        <p className="text-white">
+                                          If you delete this message, it will be
+                                          removed permanently.
+                                        </p>
+                                      </div>
+                                      <div className="w-full flex justify-end gap-2">
+                                        <button
+                                          onClick={handleDeleteForm}
+                                          type="submit"
+                                          className=" flex px-4 py-2 rounded-md bg-gray-500 text-white my-4 tracking-widest"
+                                          style={{ fontFamily: "Curetro" }}
+                                        >
+                                          Cancel
+                                        </button>
+                                        <button
+                                          type="submit"
+                                          className=" flex px-4 py-2 rounded-md bg-red-600 text-white my-4 tracking-widest"
+                                          style={{ fontFamily: "Curetro" }}
+                                        >
+                                          Delete
+                                        </button>
+                                      </div>
+                                    </form>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {isRemovedOpen && (
+                              <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50 bg-black bg-opacity-55">
+                                <div className="absolute inset-0 flex justify-center items-center">
+                                  <div className="absolute bg-gray-900 flex max-w-[40rem] justify-center items-center px-5 rounded-md">
+                                    <div className="absolute top-2 right-2"></div>
+                                    <form
+                                      action=""
+                                      method="post"
+                                      onSubmit={(e) =>
+                                        handleRemove(e, selectedMessageId)
+                                      }
+                                    >
+                                      <div className="w-full m-5">
+                                        <h2
+                                          className="text-white tracking-widest"
+                                          style={{ fontFamily: "Curetro" }}
+                                        >
+                                          Are you sure?
+                                        </h2>
+                                        <p className="text-white">
+                                          If you remove this message, it will be
+                                          removed from your side of the
+                                          conversation. However, it will still
+                                          remain visible to the other person.
+                                        </p>
+                                      </div>
+                                      <div className="w-full flex justify-end gap-2">
+                                        <button
+                                          onClick={handleRemovedForm}
+                                          type="submit"
+                                          className=" flex px-4 py-2 rounded-md bg-gray-500 text-white my-4 tracking-widest"
+                                          style={{ fontFamily: "Curetro" }}
+                                        >
+                                          Cancel
+                                        </button>
+                                        <button
+                                          type="submit"
+                                          className=" flex px-4 py-2 rounded-md bg-red-600 text-white my-4 tracking-widest"
+                                          style={{ fontFamily: "Curetro" }}
+                                        >
+                                          Remove
+                                        </button>
+                                      </div>
+                                    </form>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </>
