@@ -1,9 +1,38 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useState } from 'react'
 import { FaEdit } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import Loading from '../Loading/Loading';
+import Button from '../Button';
 
 const RightSideNav = ({...props}) => {
+  const [isLoading, setLoading] = useState(false);
+  const [showUnfriendMessage, setShowUnfriendMessage] = useState(false);
+  const navigate = useNavigate();
+
+
+  const handleUnfriend = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    try {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        const response = await axios.post(
+            `http://localhost:5000/unfriend`, { user_id: props.userId, friend_id: props.recipientId }
+        );
+        if (response.data.message === "Deleted") {
+            setShowUnfriendMessage(true);
+            navigate('/');
+            // window.location.reload();
+        }
+    } catch (error) {
+        console.log(error); 
+    } finally {
+        setLoading(false);
+    }
+};
   return (
     <div className="w-1/4  border flex flex-col bg-gray-900">
+      {isLoading && <Loading /> }
                 {props.userInfo.map((user) => {
                   if (user.user_id === parseInt(props.recipientId)) {
                     return (
@@ -59,7 +88,7 @@ const RightSideNav = ({...props}) => {
                                 className="text-white tracking-widest"
                                 style={{ fontFamily: "Curetro" }}
                               >
-                                STATUS
+                                STATUS 
                               </h1>
                               <p className="text-white">{user.status}</p>
                               <div className="border-b border-gray-500 w-full"></div>
@@ -71,11 +100,13 @@ const RightSideNav = ({...props}) => {
                               >
                                 Conversation Options
                               </h1>
+                              <form action="" method="post" onSubmit={handleUnfriend}>
                               <div className="flex justify-start items-center gap-2 py-2">
-                                <button className="whitespace-nowrap text-white px-2 py-1 bg-red-600 hover:bg-red-700 duration-300 rounded-md">
+                                <button type='submit' className="whitespace-nowrap text-white px-2 py-1 bg-red-600 hover:bg-red-700 duration-300 rounded-md">
                                   Unfriend
                                 </button>
                               </div>
+                              </form>
                               <div className="border-b border-gray-500 w-full"></div>
                             </div>
                             {props.isDeleteFormOpen && (

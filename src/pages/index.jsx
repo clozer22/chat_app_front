@@ -128,7 +128,11 @@ const Index = () => {
           `http://localhost:5000/getUsers/${user_id}`
         );
         if (response.data.message === "Successfully get all the users") {
-          setUserInfo(response.data.users);
+          return setUserInfo(response.data.users);
+        }
+
+        if(response.data.message === "No users"){
+          return setUserInfo(response.data.users)
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -136,7 +140,7 @@ const Index = () => {
     };
 
     fetchData();
-  }, [messages]);
+  }, [messages, userInfo]);
 
   const handleMenuOpen = () => {
     if (!isMenuOpen) {
