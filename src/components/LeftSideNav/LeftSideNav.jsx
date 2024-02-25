@@ -26,6 +26,42 @@ const LeftSideNav = ({ ...props }) => {
     new: false,
     confirm: false,
   });
+  const [backgroundImage, setBackgroundImage] = useState("");
+  const [showModal, setShowModal] = useState(false);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setBackgroundImage(file.name);
+      setShowModal(!showModal);
+    }
+  };
+
+  const handleChangeCover = async () => {
+    const user_id = Cookies.get("user_id")
+    setShowModal(false);
+    setLoading(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await axios.post("http://localhost:5000/changeCover", {
+        cover_img: backgroundImage,
+        user_id: user_id,
+      });
+      if (response.data.message === "cover changed") {
+        console.log("cover changed")
+        console.log(backgroundImage)
+        console.log(props.userId)
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleShowModal = () => {
+    setShowModal(!showModal);
+  };
 
   const togglePasswordVisibility = (input) => {
     setShowPassword((prevState) => ({
@@ -35,7 +71,7 @@ const LeftSideNav = ({ ...props }) => {
   };
 
   const handleButtonClick = (event, input) => {
-    event.preventDefault(); // Prevent default form submission behavior
+    event.preventDefault();
     togglePasswordVisibility(input);
   };
 
@@ -85,7 +121,7 @@ const LeftSideNav = ({ ...props }) => {
   };
 
   const handleOpenSettings = () => {
-    setShowSettingButton(false)
+    setShowSettingButton(false);
     setShowSettingForm(!showSettingForm);
   };
 
@@ -155,7 +191,7 @@ const LeftSideNav = ({ ...props }) => {
                         onChange={(e) => props.setUserId(e.target.value)}
                         placeholder="User ID"
                         min={0}
-                        className="focus:outline-none py-2 border-none rounded-md bg-gray-700 px-2 text-white placeholder:text-gray-300"
+                        className="focus:outline-none appearance-none  py-2 border-none rounded-md bg-gray-700 px-2 text-white placeholder:text-gray-300"
                       />
                       <div className="w-full mx-auto">
                         <button
@@ -172,22 +208,29 @@ const LeftSideNav = ({ ...props }) => {
               </div>
             )}
             {showSettingForm && (
-              <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50 bg-black bg-opacity-55">
+              <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-40 bg-black bg-opacity-55">
                 <div className="absolute inset-0 flex justify-center items-center">
-                  <div className="absolute bg-gray-900 w-8/12 h-4/5  flex justify-center  px-5 rounded-md">
-                    <div className="absolute top-2 right-2">
+                  <div className="absolute bg-gray-900 w-9/12 h-4/5  flex justify-center  rounded-md">
+                    <div className="absolute top-2 right-5 z-50">
                       <FaTimes
                         onClick={handleOpenSettings}
-                        className="text-2xl text-white cursor-pointer"
+                        className="text-2xl text-white z-50 cursor-pointer"
                       />
                     </div>
                     {props.userData.map((user, index) => {
                       return (
-                        <div className="border w-3/4 overflow-y-auto">
+                        <div
+                          key={index}
+                          className="border w-full  overflow-y-auto"
+                        >
                           <div
                             className="relative w-full border-b h-2/4 bg-center bg-cover bg-no-repeat object-cover object-center"
                             style={{
-                              backgroundImage: `url(${require(`../../assets/bg-1.jpg`)})`,
+                              backgroundImage: `url(${require(`../../assets/${
+                                backgroundImage === ""
+                                  ? user.cover_img
+                                  : backgroundImage
+                              }`)})`,
                             }}
                           >
                             <div className="absolute inline-block right-0 bottom-0 p-2">
@@ -200,11 +243,55 @@ const LeftSideNav = ({ ...props }) => {
                               </label>
                               <input
                                 id="fileInput"
+                                onChange={handleFileChange}
                                 type="file"
                                 className="hidden"
                               />
                             </div>
                           </div>
+                          {/* MODAL FOR COVER PHOTO */}
+
+                          {showModal && (
+                            <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50 bg-black bg-opacity-55">
+                              <div className="absolute inset-0 flex justify-center items-center">
+                                <div className="absolute bg-gray-900 flex max-w-[40rem] justify-center items-center px-5 rounded-md">
+                                  <div className="absolute top-2 right-2"></div>
+                                  <form
+                                    action=""
+                                    method="post"
+                                    onSubmit={handleChangeCover}
+                                  >
+                                    <div className="w-full m-5">
+                                      <h2
+                                        className="text-white tracking-widest"
+                                        style={{ fontFamily: "Curetro" }}
+                                      >
+                                        Hit "Save" to apply changes.
+                                      </h2>
+                                    </div>
+                                    <div className="w-full flex justify-end gap-2">
+                                      <button
+                                        onClick={handleShowModal}
+                                        type="submit"
+                                        className=" flex px-4 py-2 rounded-md bg-gray-500 text-white my-4 tracking-widest"
+                                        style={{ fontFamily: "Curetro" }}
+                                      >
+                                        Cancel
+                                      </button>
+                                      <button
+                                        type="submit"
+                                        className=" flex px-4 py-2 rounded-md bg-orange-600 text-white my-4 tracking-widest"
+                                        style={{ fontFamily: "Curetro" }}
+                                      >
+                                        Save
+                                      </button>
+                                    </div>
+                                  </form>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          {/* END FOR COVER PHOTO */}
                           <div className="relative">
                             <div className="absolute left-2 top-[-4rem]">
                               <img
@@ -218,7 +305,10 @@ const LeftSideNav = ({ ...props }) => {
                                 className="text-2xl text-white tracking-wider"
                                 style={{ fontFamily: "Curetro" }}
                               >
-                                {user.first_name} {user.last_name} <span className="text-sm">(Isa lang ang titikman)</span>
+                                {user.first_name} {user.last_name}{" "}
+                                <span className="text-sm tracking-widest">
+                                  (REACT JS Developer)
+                                </span>
                               </h1>
                               <p className="text-white">
                                 {props.userInfo.length} Friends
@@ -274,7 +364,7 @@ const LeftSideNav = ({ ...props }) => {
                                   </div>
                                   <div className="col-span-1">
                                     <button
-                                      className="px-4 tracking-widest hover:bg-orange-700 duration-300 rounded-md  py-2 text-white text-lg bg-orange-500 "
+                                      className="px-3 tracking-widest hover:bg-orange-700 duration-300 rounded-md  py-2 text-white text-md bg-orange-500 "
                                       style={{ fontFamily: "Curetro" }}
                                     >
                                       Save
@@ -372,7 +462,7 @@ const LeftSideNav = ({ ...props }) => {
                                   </div>
                                   <div className="col-span-1">
                                     <button
-                                      className="px-4 tracking-widest hover:bg-orange-700 duration-300 rounded-md  py-2 text-white text-lg bg-orange-500 "
+                                      className="px-3 tracking-widest hover:bg-orange-700 duration-300 rounded-md  py-2 text-white text-md bg-orange-500"
                                       style={{ fontFamily: "Curetro" }}
                                     >
                                       Save
@@ -470,6 +560,7 @@ const LeftSideNav = ({ ...props }) => {
                   className="w-full"
                 >
                   <div
+                    key={index}
                     className={`px-3 flex justify-start items-center mb-1 ${
                       !conversationClosed ? "bg-gray-500" : "bg-gray-700"
                     } bg-opacity-35 cursor-pointer`}
@@ -532,7 +623,10 @@ const LeftSideNav = ({ ...props }) => {
       <div className="w-full bg-gray-900 h-[4.5rem] grid grid-cols-5">
         {props.userData.map((user, index) => (
           <>
-            <div className="flex justify-start items-center gap-2 p-2 col-span-3">
+            <div
+              key={index}
+              className="flex justify-start items-center gap-2 p-2 col-span-3"
+            >
               <img
                 src={require(`../../assets/${
                   user.profile_img ? user.profile_img : "defaultPic.png"

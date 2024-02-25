@@ -39,7 +39,7 @@ const RightSideNav = ({...props}) => {
                       <>
                         <div className="w-full h-[10rem] border-4 border-gray-500 flex justify-center items-center relative overflow-hidden object-cover object-center bg-center bg-cover">
                           <img
-                            src={require(`../../assets/varon_bg2.png`)}
+                            src={require(`../../assets/${user.cover_img}`)}
                             alt=""
                           />
                           <div className="absolute inline-block right-0 bottom-0 p-2">

@@ -319,7 +319,6 @@ const Index = () => {
                               <p className="text-white text-sm">
                                 {user.status}
                               </p>
-                              {/* Add code to display user's status */}
                             </div>
                           </React.Fragment>
                         );
@@ -364,7 +363,7 @@ const Index = () => {
                                       <button
                                         onClick={handleDeleteForm}
                                         name="delete"
-                                        className="whitespace-nowrap text-white  duration-300 rounded-md"
+                                        className="whitespace-nowrap z-50 text-white  duration-300 rounded-md"
                                       >
                                         Unsend
                                       </button>
@@ -386,16 +385,16 @@ const Index = () => {
                                 <div className="ml-2 py-2 px-2 bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl text-white">
                                   <div>{message.message}</div>
                                 </div>
-                                <div className="relative px-1 py-1 rounded-full  mr-2 bg-opacity-35">
+                                <div className="relative  px-1 py-1 rounded-full  mr-2 bg-opacity-35">
                                   {isShowUnsend === index && (
                                     <div
                                       key={index}
-                                      className="bg-gray-500 top-[-2.5rem] right-[-7rem] absolute px-2 py-2 rounded-md"
+                                      className="bg-gray-500  top-[-2.5rem] right-[-7rem] absolute px-2 py-2 rounded-md"
                                     >
                                       <button
                                         onClick={handleRemovedForm}
                                         name="remove"
-                                        className="whitespace-nowrap text-white  duration-300 rounded-md"
+                                        className="whitespace-nowrap  text-white  duration-300 rounded-md"
                                       >
                                         Remove for you
                                       </button>
