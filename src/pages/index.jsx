@@ -241,12 +241,11 @@ const Index = () => {
           `http://localhost:5000/getUserData/${user_id}`
         );
         setUserData(response.data.user_data);
-        console.log(response.data.user_data);
       } catch (error) {}
     };
     fetchData();
     return () => {};
-  }, [user_id]);
+  }, [user_id, userData]);
 
   const handleShowUnsend = (index, messageId) => {
     setShowUnsend((prevIndex) => (prevIndex === index ? null : index));
@@ -286,7 +285,7 @@ const Index = () => {
               setUserId={setUserId}
               setUserName={setUserName}
               userName={userName}
-             
+              setUserData={setUserData}
               handleFormOpen={handleFormOpen}
             />
             <div
