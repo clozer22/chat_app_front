@@ -22,6 +22,7 @@ const LeftSideNav = ({ ...props }) => {
   const [showAlreadyFriend, setShowAlreadyFriend] = useState(false);
   const [showSettingButton, setShowSettingButton] = useState(false);
   const [showSettingForm, setShowSettingForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [showPassword, setShowPassword] = useState({
     current: false,
     new: false,
@@ -38,8 +39,18 @@ const LeftSideNav = ({ ...props }) => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredUsers = props.userInfo.filter(
+    (user) =>
+      user.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.last_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const handleChangeCover = async () => {
-    const user_id = Cookies.get("user_id")
+    const user_id = Cookies.get("user_id");
     setShowModal(false);
     setLoading(true);
     try {
@@ -49,9 +60,9 @@ const LeftSideNav = ({ ...props }) => {
         user_id: user_id,
       });
       if (response.data.message === "cover changed") {
-        console.log("cover changed")
-        console.log(backgroundImage)
-        console.log(props.userId)
+        console.log("cover changed");
+        console.log(backgroundImage);
+        console.log(props.userId);
       }
     } catch (error) {
       console.log(error);
@@ -124,6 +135,12 @@ const LeftSideNav = ({ ...props }) => {
   const handleOpenSettings = () => {
     setShowSettingButton(false);
     setShowSettingForm(!showSettingForm);
+  };
+
+  // Function to handle search input change
+  const handleSearchInputChange = (e) => {
+    setSearchQuery(e.target.value);
+    console.log("Search input:", e.target.value);
   };
 
   return (
@@ -209,7 +226,14 @@ const LeftSideNav = ({ ...props }) => {
               </div>
             )}
             {showSettingForm && (
-              <Profile userName={props.userName} setUserData={props.setUserData} handleShowModal={handleShowModal} handleSettings={handleOpenSettings} userData={props.userData} userInfo={props.userInfo} />
+              <Profile
+                userName={props.userName}
+                setUserData={props.setUserData}
+                handleShowModal={handleShowModal}
+                handleSettings={handleOpenSettings}
+                userData={props.userData}
+                userInfo={props.userInfo}
+              />
             )}
           </div>
           <div className="ml-4 relative">
@@ -236,13 +260,115 @@ const LeftSideNav = ({ ...props }) => {
         <CiSearch className="text-2xl text-white" />
         <input
           type="text"
-          className="w-full px-2 py-2 text-sm bg-transparent"
+          className="w-full px-2 py-2 text-sm bg-transparent text-white"
           placeholder="Search or start new chat"
+          value={searchQuery}
+          onChange={handleSearchInputChange}
         />
       </div>
 
       <div className="bg-gray-900 bg-opacity-40 overflow-y-auto flex-1 ">
-        {props.userInfo.length === 0 && (
+        {filteredUsers.length > 0 ? (
+          filteredUsers.map((user, index) => {
+            const userMessages = props.messages.filter(
+              (message) =>
+                (message.sender_id === parseInt(props.userId) &&
+                  message.receiver_id === parseInt(user.user_id)) ||
+                (message.sender_id === parseInt(user.user_id) &&
+                  message.receiver_id === parseInt(props.userId))
+            );
+
+            const lastMessage =
+              userMessages.length > 0
+                ? userMessages[userMessages.length - 1]
+                : null;
+
+            const conversationClosed =
+              user.user_id !== parseInt(props.recipientId);
+
+            const lastMessageTime = lastMessage
+              ? new Date(lastMessage.time).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "";
+
+            const lastMessageSenderId = lastMessage
+              ? lastMessage.sender_id
+              : null;
+            const isLastMessageSentByCurrentUser =
+              lastMessageSenderId === parseInt(props.userId);
+
+            return (
+              <button
+                key={index}
+                onClick={() =>
+                  navigate(
+                    `/messages/${Cookies.get("user_id")}/${user.user_id}`
+                  )
+                }
+                className="w-full"
+              >
+                <div
+                  key={index}
+                  className={`px-3 flex justify-start items-center mb-1 ${
+                    !conversationClosed ? "bg-gray-500" : "bg-gray-700"
+                  } bg-opacity-35 cursor-pointer`}
+                >
+                  <div>
+                    <img
+                      className={`h-12 w-12 rounded-full border-4 ${
+                        user.status === "Active Now"
+                          ? "border-green-500"
+                          : "border-gray-500"
+                      }`}
+                      src={require(`../../assets/${
+                        user.profile_img ? user.profile_img : "defaultPic.png"
+                      }`)}
+                      alt=""
+                    />
+                  </div>
+                  <div className="ml-4 flex-1 py-4">
+                    <div className="flex items-bottom justify-between">
+                      <p
+                        className="text-white tracking-widest"
+                        style={{ fontFamily: "Curetro" }}
+                      >
+                        {user.first_name} {user.last_name}
+                      </p>
+                      <p className="text-xs text-white">{lastMessageTime}</p>
+                    </div>
+                    <div className="flex">
+                      <p className="text-white mt-1 text-end text-sm">
+                        {lastMessage && isLastMessageSentByCurrentUser
+                          ? "You: "
+                          : ""}
+                        {lastMessage && (
+                          <span className="px-1">{lastMessage.message}</span>
+                        )}
+                      </p>
+                    </div>
+
+                    {conversationClosed && (
+                      <div className="flex">
+                        <p className="text-white text-end  mt-1 text-sm">
+                          Click to open conversation
+                        </p>
+                      </div>
+                    )}
+                    {!conversationClosed && !lastMessage && (
+                      <div className="flex">
+                        <p className="text-white text-end mt-1 text-sm">
+                          Send a message
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </button>
+            );
+          })
+        ) : (
           <h1
             className="text-white text-2xl text-center pt-2 tracking-widest"
             style={{ fontFamily: "Curetro" }}
@@ -250,107 +376,6 @@ const LeftSideNav = ({ ...props }) => {
             Connect with Others
           </h1>
         )}
-        {props.userInfo.length > 0
-          ? props.userInfo.map((user, index) => {
-              const userMessages = props.messages.filter(
-                (message) =>
-                  (message.sender_id === parseInt(props.userId) &&
-                    message.receiver_id === parseInt(user.user_id)) ||
-                  (message.sender_id === parseInt(user.user_id) &&
-                    message.receiver_id === parseInt(props.userId))
-              );
-
-              const lastMessage =
-                userMessages.length > 0
-                  ? userMessages[userMessages.length - 1]
-                  : null;
-
-              const conversationClosed =
-                user.user_id !== parseInt(props.recipientId);
-
-              const lastMessageTime = lastMessage
-                ? new Date(lastMessage.time).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "";
-
-              const lastMessageSenderId = lastMessage
-                ? lastMessage.sender_id
-                : null;
-              const isLastMessageSentByCurrentUser =
-                lastMessageSenderId === parseInt(props.userId);
-
-              return (
-                <button
-                  key={index}
-                  onClick={() =>
-                    navigate(
-                      `/messages/${Cookies.get("user_id")}/${user.user_id}`
-                    )
-                  }
-                  className="w-full"
-                >
-                  <div
-                    key={index}
-                    className={`px-3 flex justify-start items-center mb-1 ${
-                      !conversationClosed ? "bg-gray-500" : "bg-gray-700"
-                    } bg-opacity-35 cursor-pointer`}
-                  >
-                    <div>
-                      <img
-                        className={`h-12 w-12 rounded-full border-4 ${
-                          user.status === "Active Now"
-                            ? "border-green-500"
-                            : "border-gray-500"
-                        }`}
-                        src={require(`../../assets/${
-                          user.profile_img ? user.profile_img : "defaultPic.png"
-                        }`)}
-                        alt=""
-                      />
-                    </div>
-                    <div className="ml-4 flex-1 py-4">
-                      <div className="flex items-bottom justify-between">
-                        <p
-                          className="text-white tracking-widest"
-                          style={{ fontFamily: "Curetro" }}
-                        >
-                          {user.first_name} {user.last_name}
-                        </p>
-                        <p className="text-xs text-white">{lastMessageTime}</p>
-                      </div>
-                      <div className="flex">
-                        <p className="text-white mt-1 text-end text-sm">
-                          {lastMessage && isLastMessageSentByCurrentUser
-                            ? "You: "
-                            : ""}
-                          {lastMessage && (
-                            <span className="px-1">{lastMessage.message}</span>
-                          )}
-                        </p>
-                      </div>
-
-                      {conversationClosed && (
-                        <div className="flex">
-                          <p className="text-white text-end  mt-1 text-sm">
-                            Click to open conversation
-                          </p>
-                        </div>
-                      )}
-                      {!conversationClosed && !lastMessage && (
-                        <div className="flex">
-                          <p className="text-white text-end mt-1 text-sm">
-                            Send a message
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              );
-            })
-          : ""}
       </div>
       <div className="w-full bg-gray-900 h-[4.5rem] grid grid-cols-5">
         {props.userData.map((user, index) => (

@@ -5,6 +5,8 @@ import { FaEdit, FaEye, FaEyeSlash, FaTimes } from "react-icons/fa";
 import Loading from "../Loading/Loading";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import SuccessModal from '../Modals/SuccessModal'
+import ErrorModal from '../Modals/ErrorModal'
 
 const Profile = ({ ...props }) => {
   const [backgroundImage, setBackgroundImage] = useState("");
@@ -12,9 +14,12 @@ const Profile = ({ ...props }) => {
   const [showModal, setShowModal] = useState(false);
   const [showModalProfile, setModalProfile] = useState(false);
   const [isLoading, setLoading] = useState(false);
-  const [showAlreadyFriend, setShowAlreadyFriend] = useState(false);
-  const [showSettingButton, setShowSettingButton] = useState(false);
-  const [showSettingForm, setShowSettingForm] = useState(false);
+  const [showModalPassword, setModalPassword] = useState(false);
+  const [showPasswordNotMatch, setPasswordNotmatch] = useState(false);
+  const [currentPass, setCurrentPass] = useState('');
+  const [newPass, setNewPass] = useState('');
+  const [confirmPass, setConfirmPass] = useState('');
+
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -54,6 +59,41 @@ const Profile = ({ ...props }) => {
     event.preventDefault();
     togglePasswordVisibility(input);
   };
+
+
+  const handleChangePass = async (event) => {
+    setPasswordNotmatch(false)
+    event.preventDefault();
+    setLoading(true)
+    try{
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const response = await axios.post("http://localhost:5000/changePassword", {
+        user_id: Cookies.get("user_id"),
+        currentPass: currentPass,
+        newPass: newPass,
+        confirmPass: confirmPass
+      });
+
+      if(response.data.message === "password changed"){
+        console.log("PASSWORD CHANGED!!")
+        setModalPassword(true)
+        setCurrentPass('')
+        setConfirmPass('')
+        setNewPass('')
+        return;
+      }
+
+      if(response.data.message === "New password and confirm password does not matched."){
+        setPasswordNotmatch(true)
+        return;
+      }
+    }catch(error){
+      console.log(error)
+    }finally{
+      setLoading(false)
+    }
+  }
 
   const handleChangeCover = async () => {
     const user_id = Cookies.get("user_id");
@@ -114,9 +154,8 @@ const Profile = ({ ...props }) => {
       try {
         await new Promise((resolve) => setTimeout(resolve, 3000))
         const response = await axios.post("http://localhost:5000/updateInfo", values);
-
-        if(response.data.message === "Updated"){
         resetForm();
+        if(response.data.message === "Updated"){
         props.setUserData([])
         }
       } catch (error) {
@@ -130,6 +169,8 @@ const Profile = ({ ...props }) => {
   return (
     <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-40 bg-black bg-opacity-55">
       {isLoading && <Loading />}
+      {showModalPassword && <SuccessModal label="Your password is now updated" />}
+      {showPasswordNotMatch && <ErrorModal setShowAlert1={setPasswordNotmatch} label="Please double-check your new password and confirm password." />}
       <div className="absolute inset-0 flex justify-center items-center">
         <div className="absolute bg-gray-900 w-9/12 h-4/5  flex justify-center  rounded-md">
           <div className="absolute top-2 right-5 z-50">
@@ -385,7 +426,7 @@ const Profile = ({ ...props }) => {
                     <div className="absolute top-[-2rem]">
                       <h1 className="text-white">Change password</h1>
                     </div>
-                    <form action="">
+                    <form onSubmit={handleChangePass}>
                       <div className="w-full grid grid-cols-1 p-5 gap-2">
                         <div className="col-span-1">
                           <label htmlFor="" className="text-gray-400">
@@ -393,6 +434,8 @@ const Profile = ({ ...props }) => {
                           </label>
                           <div className="relative">
                             <input
+                              value={currentPass}
+                             onChange={((e) => setCurrentPass(e.target.value))}
                               type={showPassword.current ? "text" : "password"}
                               className="w-full px-2 py-2 bg-transparent border border-gray-400 focus:outline-none text-white rounded-md"
                             />
@@ -414,6 +457,8 @@ const Profile = ({ ...props }) => {
                           </label>
                           <div className="relative">
                             <input
+                              value={newPass}
+                             onChange={((e) => setNewPass(e.target.value))}
                               type={showPassword.new ? "text" : "password"}
                               className="w-full px-2 py-2 bg-transparent border border-gray-400 focus:outline-none text-white rounded-md"
                             />
@@ -435,6 +480,8 @@ const Profile = ({ ...props }) => {
                           </label>
                           <div className="relative">
                             <input
+                              value={confirmPass}
+                              onChange={((e) => setConfirmPass(e.target.value))}
                               type={showPassword.confirm ? "text" : "password"}
                               className="w-full px-2 py-2 bg-transparent border border-gray-400 focus:outline-none text-white rounded-md"
                             />
@@ -452,6 +499,7 @@ const Profile = ({ ...props }) => {
                         </div>
                         <div className="col-span-1">
                           <button
+                          type="submit"
                             className="px-3 tracking-widest hover:bg-orange-700 duration-300 rounded-md  py-2 text-white text-md bg-orange-500"
                             style={{ fontFamily: "Curetro" }}
                           >
