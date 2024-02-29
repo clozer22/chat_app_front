@@ -36,25 +36,12 @@ const RightSideNav = ({...props}) => {
                 {props.userInfo.map((user) => {
                   if (user.user_id === parseInt(props.recipientId)) {
                     return (
-                      <>
+                      <div key={user.user_id}>
                         <div className="w-full h-[10rem] border-4 border-gray-500 flex justify-center items-center relative overflow-hidden object-cover object-center bg-center bg-cover">
                           <img
                             src={require(`../../assets/${user.cover_img}`)}
                             alt=""
                           />
-                          <div className="absolute inline-block right-0 bottom-0 p-2">
-                            <label
-                              htmlFor="fileInput"
-                              className="cursor-pointer bg-white opacity-40 hover:opacity-100 text-black font-bold   rounded"
-                            >
-                              <FaEdit className="text-2xl" />
-                            </label>
-                            <input
-                              id="fileInput"
-                              type="file"
-                              className="hidden"
-                            />
-                          </div>
                         </div>
                         <div className=" h-full relative flex justify-center items-center">
                           <div className="absolute left-2 top-[-4rem]">
@@ -72,7 +59,7 @@ const RightSideNav = ({...props}) => {
                               alt=""
                             />
                           </div>
-                          <div className="w-3/4 h-2/4 rounded-lg bg-gray-800 p-4">
+                          <div className="w-3/4  rounded-lg bg-gray-800 p-4">
                             <h1
                               className="text-white tracking-widest"
                               style={{ fontFamily: "Curetro" }}
@@ -205,7 +192,7 @@ const RightSideNav = ({...props}) => {
                             )}
                           </div>
                         </div>
-                      </>
+                      </div>
                     );
                   }
                   return null;

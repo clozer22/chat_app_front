@@ -39,6 +39,7 @@ const Index = () => {
   const [isRemovedOpen, setRemovedOpen] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [userData, setUserData] = useState([]);
+  const [friendReq, setFriendReq] = useState([]);
   const [isShowUnsend, setShowUnsend] = useState(null);
   const user_id = Cookies.get("user_id");
   const [selectedMessageId, setSelectedMessageId] = useState(null);
@@ -133,6 +134,29 @@ const Index = () => {
 
         if(response.data.message === "No users"){
           return setUserInfo(response.data.users)
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [messages, userInfo]);
+
+  useEffect(() => {
+    const user_id = Cookies.get("user_id");
+
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/getFriendReq/${user_id}`
+        );
+        if (response.data.message === "Successfully get all the users") {
+          return setFriendReq(response.data.users);
+        }
+
+        if(response.data.message === "No users"){
+          return setFriendReq(response.data.users)
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -287,6 +311,7 @@ const Index = () => {
               userName={userName}
               setUserData={setUserData}
               handleFormOpen={handleFormOpen}
+              friendReq={friendReq}
             />
             <div
               className={`${

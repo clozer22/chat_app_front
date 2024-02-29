@@ -2,7 +2,7 @@ import Cookies from "js-cookie";
 import React, { useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { CiSearch } from "react-icons/ci";
-import { FaEdit, FaTimes } from "react-icons/fa";
+import { FaEdit, FaTimes, FaBell, FaCheck } from "react-icons/fa";
 import { TiUserAdd } from "react-icons/ti";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -128,6 +128,42 @@ const LeftSideNav = ({ ...props }) => {
     }
   };
 
+  const handleAcceptRequest = async (userId) => {
+    setLoading(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await axios.post("http://localhost:5000/acceptFriend", {
+        user_id: userId,
+      });
+
+      if (response.data.message === "accepted") {
+        return console.log("accepted");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRejectRequest = async (userId) => {
+    setLoading(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await axios.post("http://localhost:5000/rejectRequest", {
+        user_id: userId,
+      });
+
+      if (response.data.message === "rejected") {
+        return console.log("accepted");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSettings = () => {
     setShowSettingButton(!showSettingButton);
   };
@@ -237,19 +273,54 @@ const LeftSideNav = ({ ...props }) => {
             )}
           </div>
           <div className="ml-4 relative">
-            <BsThreeDotsVertical
+            <FaBell
               onClick={props.handleMenuOpen}
               className="text-white text-2xl cursor-pointer"
             />
+            <div className="absolute top-[-1rem] right-[-.3rem]">
+              <h2 className="text-red-600 font-bold">
+                {props.friendReq.length === 0 ? "" : props.friendReq.length}
+              </h2>
+            </div>
             {props.isMenuOpen && (
-              <div className="absolute bg-white px-2 py-2 right-0 rounded-md">
-                <button
-                  type="submit"
-                  onClick={props.handleLogout}
-                  className="whitespace-nowrap text-red-500 font-bold"
+              <div className="absolute bg-gray-900 px-4 py-3 w-[20rem] h-[15rem] overflow-y-auto right-0 rounded-md">
+                <h2
+                  className="text-center text-white tracking-widest"
+                  style={{ fontFamily: "Curetro" }}
                 >
-                  Sign Out
-                </button>
+                  Friend Request
+                </h2>
+                {props.friendReq.map((user, index) => (
+                  <>
+                    <div
+                      key={index}
+                      className="flex items-center mt-1 justify-between border border-gray-600 px-2 py-2 rounded-md"
+                    >
+                      <div>
+                        <img src="../../assets/defaultPic.png" alt="" />
+                        <h1 className="text-white">
+                          {user.first_name} {user.last_name}
+                        </h1>
+                      </div>
+                      <div className="flex gap-2 items-center">
+                        <button
+                          onClick={() =>
+                            handleAcceptRequest(user.friendship_id)
+                          }
+                        >
+                          <FaCheck className="text-green-500 text-lg" />
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleRejectRequest(user.friendship_id)
+                          }
+                        >
+                          <FaTimes className="text-red-500 text-lg" />
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ))}
               </div>
             )}
           </div>
@@ -377,11 +448,10 @@ const LeftSideNav = ({ ...props }) => {
           </h1>
         )}
       </div>
-      <div className="w-full bg-gray-900 h-[4.5rem] grid grid-cols-5">
+      <div className="w-full bg-gray-900 h-[4.5rem]">
         {props.userData.map((user, index) => (
-          <>
+          <div key={user.user_id} className=" grid grid-cols-5">
             <div
-              key={index}
               className="flex justify-start items-center gap-2 p-2 col-span-3"
             >
               <img
@@ -431,7 +501,7 @@ const LeftSideNav = ({ ...props }) => {
                 />
               </div>
             </div>
-          </>
+          </div>
         ))}
       </div>
     </div>

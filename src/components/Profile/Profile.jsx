@@ -60,6 +60,11 @@ const Profile = ({ ...props }) => {
     togglePasswordVisibility(input);
   };
 
+  const handleCloseProfileModal = () => {
+    setProfileImg('')
+    setModalProfile(false)
+  }
+
 
   const handleChangePass = async (event) => {
     setPasswordNotmatch(false)
@@ -117,9 +122,11 @@ const Profile = ({ ...props }) => {
     }
   };
 
-  const handleChangeProfile = async () => {
+  const handleChangeProfile = async (event) => {
+    event.preventDefault();
     const user_id = Cookies.get("user_id");
     setShowModal(false);
+    setModalProfile(false)
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -255,7 +262,6 @@ const Profile = ({ ...props }) => {
                         <div className="absolute top-2 right-2"></div>
                         <form
                           action=""
-                          method="post"
                           onSubmit={handleChangeProfile}
                         >
                           <div className="w-full m-5">
@@ -268,7 +274,7 @@ const Profile = ({ ...props }) => {
                           </div>
                           <div className="w-full flex justify-end gap-2">
                             <button
-                              onClick={handleProfileSubmit}
+                              onClick={handleCloseProfileModal}
                               className=" flex px-4 py-2 rounded-md bg-gray-500 text-white my-4 tracking-widest"
                               style={{ fontFamily: "Curetro" }}
                             >
@@ -434,6 +440,7 @@ const Profile = ({ ...props }) => {
                           </label>
                           <div className="relative">
                             <input
+                              autoComplete="current-password"
                               value={currentPass}
                              onChange={((e) => setCurrentPass(e.target.value))}
                               type={showPassword.current ? "text" : "password"}
@@ -457,6 +464,7 @@ const Profile = ({ ...props }) => {
                           </label>
                           <div className="relative">
                             <input
+                            autoComplete="new-password"
                               value={newPass}
                              onChange={((e) => setNewPass(e.target.value))}
                               type={showPassword.new ? "text" : "password"}
@@ -480,6 +488,7 @@ const Profile = ({ ...props }) => {
                           </label>
                           <div className="relative">
                             <input
+                              autoComplete="confirm-password"
                               value={confirmPass}
                               onChange={((e) => setConfirmPass(e.target.value))}
                               type={showPassword.confirm ? "text" : "password"}
