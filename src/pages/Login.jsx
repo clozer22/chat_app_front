@@ -8,6 +8,8 @@ import Cookies from 'js-cookie'
 import Loading from '../components/Loading/Loading';
 import ErrorModal from '../components/Modals/ErrorModal';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -15,6 +17,7 @@ const Login = () => {
     const [showAlert, setShowAlert] = useState(false)
     const [showAlertNotExist, setshowAlertNotExist] = useState(false)
     const [showPassword, setShowPassword] = useState(false); 
+    
 
 
     const axiosWithCredentials = axios.create({
@@ -24,6 +27,14 @@ const Login = () => {
     const axiosWithoutCredentials = axios.create({
         withCredentials: false,
     });
+
+    useEffect(() => {
+        const verified = Cookies.get("verified");
+
+        if(verified){
+
+        }
+    })
 
     const formik = useFormik({
         initialValues: {
@@ -76,6 +87,18 @@ const Login = () => {
     //       navigate('/')
     //     }
     //   },[])
+    const passRes = Cookies.get("passReset")
+
+    const passUpdated = () => toast.success("Your password is now updated")
+
+    useEffect(() => {
+        if(passRes){
+            passUpdated()
+            setTimeout(() => {
+                Cookies.remove("passReset")
+            }, 3000)
+        }
+    }, [passRes])
 
     const togglePasswordVisibility = () => {
         setShowPassword(prevState => !prevState); // Toggle password visibility
@@ -85,7 +108,7 @@ const Login = () => {
         <div className="h-screen font-sans login bg-cover">
         {showAlert ? <ErrorModal setShowAlert1={setShowAlert} label="Wrong username/password combination!" /> : null}
         {showAlertNotExist ? <ErrorModal setShowAlert1={setShowAlert} label="Username doesn't exist." /> : null}
-      
+        <ToastContainer />
             <div className="container mx-auto h-full flex flex-1 justify-center items-center">
                 <div className="w-full max-w-lg">
                     <div className="">
@@ -140,12 +163,12 @@ const Login = () => {
                                 >
                                     Login
                                 </button>
-                                <a
+                                <button
+                                    onClick={() => navigate('/verify')}
                                     className="inline-block right-0 align-baseline font-bold text-sm text-500 text-white duration-300 hover:text-orange-500"
-                                    href="asd"
                                 >
                                     Forgot password?
-                                </a>
+                                </button>
                             </div>
                             <div className="text-center">
                                 <button
