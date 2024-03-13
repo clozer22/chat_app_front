@@ -41,6 +41,12 @@ const Profile = ({ ...props }) => {
         setProfileImg('')
         setModalProfile(!showModalProfile)
   }
+
+  const handleOpenAndCloseModal = () => {
+    setShowModal(!showModal)
+    setProfileImg('')
+    setModalProfile(!showModalProfile)
+  }
   
   const [showPassword, setShowPassword] = useState({
     current: false,
@@ -235,7 +241,7 @@ const Profile = ({ ...props }) => {
                           </div>
                           <div className="w-full flex justify-end gap-2">
                             <button
-                              onClick={(() => setShowModal(false))}
+                              onClick={handleOpenAndCloseModal}
                               className=" flex px-4 py-2 rounded-md bg-gray-500 text-white my-4 tracking-widest"
                               style={{ fontFamily: "Curetro" }}
                             >
