@@ -24,17 +24,15 @@ const Profile = ({ ...props }) => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setBackgroundImage(file.name);
+      setBackgroundImage(file);
       setShowModal(!showModal);
     }
   };
 
   const handleFileChange2 = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setProfileImg(file.name);
+      setProfileImg(file);
       setModalProfile(!showModalProfile);
-    }
   };
 
   const handleProfileSubmit = () => {
@@ -112,10 +110,10 @@ const Profile = ({ ...props }) => {
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      const response = await axios.post("http://localhost:5000/changeCover", {
-        cover_img: backgroundImage,
-        user_id: user_id,
-      });
+      const formData = new FormData();
+      formData.append("cover_img", backgroundImage);
+      formData.append("user_id", user_id);
+      const response = await axios.post("http://localhost:5000/changeCover", formData);
       if (response.data.message === "cover changed") {
         console.log("cover changed");
         console.log(backgroundImage);
@@ -130,16 +128,16 @@ const Profile = ({ ...props }) => {
 
   const handleChangeProfile = async (event) => {
     event.preventDefault();
+    setModalProfile(!showModalProfile)
     const user_id = Cookies.get("user_id");
-    setShowModal(false);
-    setModalProfile(false)
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      const response = await axios.post("http://localhost:5000/changeProfile", {
-        profile_img: profileImg,
-        user_id: user_id,
-      });
+      await new Promise((resolve) => setTimeout(resolve, 3000))
+      const formData = new FormData();
+      formData.append("profile_img", profileImg);
+      formData.append("user_id", user_id);
+  
+      const response = await axios.post("http://localhost:5000/changeProfile", formData);
       if (response.data.message === "profile changed") {
         console.log("profile changed");
       }
@@ -149,6 +147,8 @@ const Profile = ({ ...props }) => {
       setLoading(false);
     }
   };
+  
+
 
   const formik = useFormik({
     initialValues: {
@@ -198,9 +198,7 @@ const Profile = ({ ...props }) => {
                 <div
                   className="relative w-full border-b h-2/4 bg-center bg-cover bg-no-repeat object-cover object-center"
                   style={{
-                    backgroundImage: `url(${require(`../../assets/${
-                      backgroundImage === "" ? user.cover_img : backgroundImage
-                    }`)})`,
+                    backgroundImage: `url(http://localhost:5000/uploaded_img/${user.cover_img})`,
                   }}
                 >
                   <div className="absolute inline-block right-0 bottom-0 p-2">
@@ -305,7 +303,7 @@ const Profile = ({ ...props }) => {
                     <div className="relative">
                     <img
                       className={`w-[8rem] h-[8rem] rounded-full border-4 `}
-                      src={require(`../../assets/${profileImg === '' ? user.profile_img : profileImg}`)}
+                      src={`http://localhost:5000/uploaded_img/${user.profile_img}`}
                       alt=""
                     />
                     <div className="absolute bottom-0 right-0">
