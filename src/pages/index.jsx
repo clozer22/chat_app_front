@@ -270,10 +270,14 @@ const Index = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/getUserData/${user_id}`
-        );
-        setUserData(response.data.user_data);
+        if(user_id){
+          const response = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/getUserData/${user_id}`
+          );
+          setUserData(response.data.user_data);
+        }else{
+          console.log("User ID is empty or not existing in cookies")
+        }
       } catch (error) {}
     };
     fetchData();
