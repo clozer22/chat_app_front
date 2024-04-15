@@ -35,7 +35,6 @@ const Login = () => {
 
 
     const axiosWithCredentials = axios.create({
-        baseURL: process.env.REACT_APP_BACKEND_URL,
         withCredentials: true,
       });
       
@@ -69,7 +68,7 @@ const Login = () => {
                 await new Promise((resolve) => setTimeout(resolve, 2000))
 
                 const response = await axiosWithCredentials.post(
-                    `${process.env.REACT_APP_BACKEND_URL}/login`,
+                    `https://chatappfinals-production.up.railway.app/login`,
                     values
                 );
                 if(response.data.message === "Wrong username/password combination!"){
