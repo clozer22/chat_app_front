@@ -35,8 +35,10 @@ const Login = () => {
 
 
     const axiosWithCredentials = axios.create({
+        baseURL: process.env.REACT_APP_BACKEND_URL,
         withCredentials: true,
-    });
+      });
+      
 
     const axiosWithoutCredentials = axios.create({
         withCredentials: false,
