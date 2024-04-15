@@ -68,7 +68,7 @@ const Login = () => {
                 await new Promise((resolve) => setTimeout(resolve, 2000))
 
                 const response = await axiosWithCredentials.post(
-                    `${process.env.REACT_APP_BACKEND_URL}login`,
+                    `${process.env.REACT_APP_BACKEND_URL}/login`,
                     values
                 );
                 if(response.data.message === "Wrong username/password combination!"){
