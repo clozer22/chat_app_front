@@ -126,6 +126,10 @@ const Index = () => {
 
     const fetchData = async () => {
       try {
+        if(!user_id){
+          return;
+        }
+
         const response = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/getUsers/${user_id}`
         );
