@@ -126,10 +126,7 @@ const Index = () => {
 
     const fetchData = async () => {
       try {
-        if(!user_id){
-          return;
-        }
-
+        if(user_id){
         const response = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/getUsers/${user_id}`
         );
@@ -140,6 +137,9 @@ const Index = () => {
         if(response.data.message === "No users"){
           return setUserInfo(response.data.users)
         }
+      }else{
+        console.log("User ID is empty or not existing in cookies");
+      }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -150,26 +150,30 @@ const Index = () => {
 
   useEffect(() => {
     const user_id = Cookies.get("user_id");
-
+  
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/getFriendReq/${user_id}`
-        );
-        if (response.data.message === "Successfully get all the users") {
-          return setFriendReq(response.data.users);
-        }
-
-        if(response.data.message === "No users"){
-          return setFriendReq(response.data.users)
+        if (user_id) {
+          const response = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/getFriendReq/${user_id}`
+          );
+          if (response.data.message === "Successfully get all the users") {
+            return setFriendReq(response.data.users);
+          }
+          if (response.data.message === "No users") {
+            return setFriendReq(response.data.users);
+          }
+        } else {
+          console.log("User ID is empty or not existing in cookies");
         }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-
+  
     fetchData();
   }, [messages, userInfo]);
+  
 
   const handleMenuOpen = () => {
     if (!isMenuOpen) {
