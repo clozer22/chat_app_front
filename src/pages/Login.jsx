@@ -17,6 +17,20 @@ const Login = () => {
     const [showAlert, setShowAlert] = useState(false)
     const [showAlertNotExist, setshowAlertNotExist] = useState(false)
     const [showPassword, setShowPassword] = useState(false); 
+    const isCreated = Cookies.get("loginSuccess")
+
+
+    const accountCreated = () => toast.success("Successfully Registered")
+    const wrongPass = () => toast.error("Wrong username/password combination!")
+
+    useEffect(() => {
+        if(isCreated){
+            accountCreated()
+            setTimeout(() => {
+                Cookies.remove("loginSuccess")
+            })
+        }
+    },[isCreated])
     
 
 
@@ -53,11 +67,11 @@ const Login = () => {
                 await new Promise((resolve) => setTimeout(resolve, 2000))
 
                 const response = await axiosWithCredentials.post(
-                    "http://localhost:5000/login",
+                    `${process.env.REACT_APP_BACKEND_URL}/login`,
                     values
                 );
                 if(response.data.message === "Wrong username/password combination!"){
-                     setShowAlert(true)
+                    wrongPass()
                      return;
                 }
 

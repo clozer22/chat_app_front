@@ -17,7 +17,8 @@ import Loading from "../components/Loading/Loading";
 import { useFetchUser } from "../components/CustomHook/CustomHook";
 import LeftSideNav from "../components/LeftSideNav/LeftSideNav";
 import RightSideNav from "../components/RightSideNav/RightSideNav";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const Index = () => {
   const [messages, setMessage] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -43,6 +44,7 @@ const Index = () => {
   const [isShowUnsend, setShowUnsend] = useState(null);
   const user_id = Cookies.get("user_id");
   const [selectedMessageId, setSelectedMessageId] = useState(null);
+  const welcomeMess = () => toast.success("Welcome to CHAT HUB!")
 
   const handleEmojiClick = (emojiData, event) => {
     const emoji = emojiData.emoji;
@@ -67,7 +69,7 @@ const Index = () => {
     }
 
     try {
-      axios.post("http://localhost:5000/messages", {
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/messages`, {
         sender: userId,
         recipient: recipientId,
         message: newMessage,
@@ -85,7 +87,7 @@ const Index = () => {
   const fetchMessages = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/messages/${recipientId}/${userId}`
+        `${process.env.REACT_APP_BACKEND_URL}/messages/${recipientId}/${userId}`
       );
       if (response.data.message === "messages fetched") {
         setMessage(response.data.messageData);
@@ -112,11 +114,10 @@ const Index = () => {
   useEffect(() => {
     const LoggedIn = Cookies.get("LoggedIn");
     if (LoggedIn) {
-      setShowAlert(true);
+      welcomeMess()
       setTimeout(() => {
         Cookies.remove("LoggedIn");
-        setShowAlert(false);
-      }, 5000);
+      }, 2000);
     }
   }, []);
 
@@ -126,7 +127,7 @@ const Index = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/getUsers/${user_id}`
+          `${process.env.REACT_APP_BACKEND_URL}/getUsers/${user_id}`
         );
         if (response.data.message === "Successfully get all the users") {
           return setUserInfo(response.data.users);
@@ -149,7 +150,7 @@ const Index = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/getFriendReq/${user_id}`
+          `${process.env.REACT_APP_BACKEND_URL}/getFriendReq/${user_id}`
         );
         if (response.data.message === "Successfully get all the users") {
           return setFriendReq(response.data.users);
@@ -184,7 +185,7 @@ const Index = () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       axios
-        .post("http://localhost:5000/logout", { userId })
+        .post(`${process.env.REACT_APP_BACKEND_URL}/logout`, { userId })
         .then((response) => {
           if (response.data.message === "Logged out successfully") {
             Cookies.remove("user_id");
@@ -222,7 +223,7 @@ const Index = () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       const response = await axios.post(
-        `http://localhost:5000/deleteMessage/${messageId}`
+        `${process.env.REACT_APP_BACKEND_URL}/deleteMessage/${messageId}`
       );
       if (response.data.message === "Deleted successfully") {
         setDeleted(true);
@@ -244,7 +245,7 @@ const Index = () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       const response = await axios.post(
-        `http://localhost:5000/removeMessage/${messageId}`
+        `${process.env.REACT_APP_BACKEND_URL}/removeMessage/${messageId}`
       );
       if (response.data.message === "Deleted successfully") {
         setDeleted(true);
@@ -262,7 +263,7 @@ const Index = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/getUserData/${user_id}`
+          `${process.env.REACT_APP_BACKEND_URL}/getUserData/${user_id}`
         );
         setUserData(response.data.user_data);
       } catch (error) {}
@@ -277,7 +278,7 @@ const Index = () => {
   };
   return (
     <div className="flex justify-center items-center w-full mx-0">
-      {showAlert ? <SuccessModal label="Welcome to CHAT HUB" /> : null}
+        <ToastContainer />
       {showAddedModal ? <SuccessModal label="Added Successfully" /> : null}
 
       {isLoading && <Loading />}
@@ -328,11 +329,11 @@ const Index = () => {
                             <div>
                               <img
                                 className="w-10 h-10 rounded-full"
-                                src={require(`../assets/${
+                                src={`${process.env.REACT_APP_BACKEND_URL}/uploaded_img/${
                                   user.profile_img
                                     ? user.profile_img
                                     : "defaultPic.png"
-                                }`)}
+                                }`}
                                 alt=""
                               />
                             </div>
@@ -439,23 +440,24 @@ const Index = () => {
                           </div>
                         ))
                       ) : (
-                        <div className="flex justify-center items-center h-full">
+                        <>
                           {userInfo.map((user) => {
                             if(user.user_id === parseInt(recipientId)){
                               return(
+                                <div key={user.user_id} className="flex justify-center w-full items-center h-full">
                                 <h1
                                 className="text-[2rem] text-white absolute top-[15rem]"
                                 style={{ fontFamily: "Curetro" }}
                               >
                                 Say hello to {user.user_name}
                               </h1>
+                                </div>
                               )
                             }
                             return null;
                           }
                           )}
-                        
-                        </div>
+                          </>
                       )
                     ) : (
                       <div className="flex justify-center items-center h-full">

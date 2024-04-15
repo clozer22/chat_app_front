@@ -12,6 +12,8 @@ import SuccessModal from "../Modals/SuccessModal";
 import ErrorModal from "../Modals/ErrorModal";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Profile from "../Profile/Profile";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LeftSideNav = ({ ...props }) => {
   const navigate = useNavigate();
@@ -23,6 +25,7 @@ const LeftSideNav = ({ ...props }) => {
   const [showSettingButton, setShowSettingButton] = useState(false);
   const [showSettingForm, setShowSettingForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const newlyAdded = () => toast.success("Friend request sent")
   const [showPassword, setShowPassword] = useState({
     current: false,
     new: false,
@@ -30,6 +33,8 @@ const LeftSideNav = ({ ...props }) => {
   });
   const [backgroundImage, setBackgroundImage] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const alreadyFriend = () => toast.error("This user is already your friend")
+  const notExist = () => toast.error("This user doesn't exist!")
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -55,7 +60,7 @@ const LeftSideNav = ({ ...props }) => {
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      const response = await axios.post("http://localhost:5000/changeCover", {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/changeCover`, {
         cover_img: backgroundImage,
         user_id: user_id,
       });
@@ -74,6 +79,8 @@ const LeftSideNav = ({ ...props }) => {
   const handleShowModal = () => {
     setShowModal(!showModal);
   };
+
+  
 
   const togglePasswordVisibility = (input) => {
     setShowPassword((prevState) => ({
@@ -99,7 +106,7 @@ const LeftSideNav = ({ ...props }) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       const response = await axios.post(
-        "http://localhost:5000/sendFriendRequest",
+        `${process.env.REACT_APP_BACKEND_URL}/sendFriendRequest`,
         {
           userId: user_id,
           userName: props.userName,
@@ -109,16 +116,16 @@ const LeftSideNav = ({ ...props }) => {
 
       if (response.data.message === "Successfully sent") {
         console.log(response.data.message);
-        setAddedModal(true);
+        newlyAdded()
         return;
       }
 
       if (response.data.message === "That user is not exist.") {
-        setShowNotExistModal(true);
+        notExist();
         return;
       }
       if (response.data.message === "That user is already your friend.") {
-        setShowAlreadyFriend(true);
+        alreadyFriend();
         return;
       }
     } catch (error) {
@@ -132,7 +139,7 @@ const LeftSideNav = ({ ...props }) => {
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      const response = await axios.post("http://localhost:5000/acceptFriend", {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/acceptFriend`, {
         user_id: userId,
       });
 
@@ -150,7 +157,7 @@ const LeftSideNav = ({ ...props }) => {
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      const response = await axios.post("http://localhost:5000/rejectRequest", {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/rejectRequest`, {
         user_id: userId,
       });
 
@@ -181,7 +188,6 @@ const LeftSideNav = ({ ...props }) => {
 
   return (
     <div className="w-1/4 border flex flex-col ">
-      {showAddedModal ? <SuccessModal label="Added Successfully" /> : null}
       {isLoading && <Loading />}
       {showNotExistModal && (
         <ErrorModal
@@ -291,9 +297,8 @@ const LeftSideNav = ({ ...props }) => {
                   Friend Request
                 </h2>
                 {props.friendReq.map((user, index) => (
-                  <>
+                  <div key={user.friendship_id}>
                     <div
-                      key={index}
                       className="flex items-center mt-1 justify-between border border-gray-600 px-2 py-2 rounded-md"
                     >
                       <div>
@@ -319,7 +324,7 @@ const LeftSideNav = ({ ...props }) => {
                         </button>
                       </div>
                     </div>
-                  </>
+                  </div>
                 ))}
               </div>
             )}
@@ -449,7 +454,7 @@ const LeftSideNav = ({ ...props }) => {
         )}
       </div>
       <div className="w-full bg-gray-900 h-[4.5rem]">
-        {props.userData.map((user, index) => (
+        {props.userData && props.userData.map((user, index) => (
           <div key={user.user_id} className=" grid grid-cols-5">
             <div
               className="flex justify-start items-center gap-2 p-2 col-span-3"

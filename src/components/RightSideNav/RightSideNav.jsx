@@ -17,7 +17,7 @@ const RightSideNav = ({...props}) => {
     try {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         const response = await axios.post(
-            `http://localhost:5000/unfriend`, { user_id: props.userId, friend_id: props.recipientId }
+            `${process.env.REACT_APP_BACKEND_URL}/unfriend`, { user_id: props.userId, friend_id: props.recipientId }
         );
         if (response.data.message === "Deleted") {
             setShowUnfriendMessage(true);
@@ -39,7 +39,7 @@ const RightSideNav = ({...props}) => {
                       <div key={user.user_id}>
                         <div className="w-full h-[10rem] border-4 border-gray-500 flex justify-center items-center relative overflow-hidden object-cover object-center bg-center bg-cover">
                           <img
-                            src={require(`../../assets/${user.cover_img}`)}
+                            src={`${process.env.REACT_APP_BACKEND_URL}/uploaded_img/${user.cover_img}`}
                             alt=""
                           />
                         </div>
@@ -51,11 +51,7 @@ const RightSideNav = ({...props}) => {
                                   ? "border-green-500"
                                   : "border-gray-500"
                               } `}
-                              src={require(`../../assets/${
-                                user.profile_img
-                                  ? user.profile_img
-                                  : "defaultPic.png"
-                              }`)}
+                              src={`${process.env.REACT_APP_BACKEND_URL}/uploaded_img/${user.profile_img}`}
                               alt=""
                             />
                           </div>

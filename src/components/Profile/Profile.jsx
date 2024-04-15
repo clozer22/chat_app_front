@@ -7,6 +7,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import SuccessModal from '../Modals/SuccessModal'
 import ErrorModal from '../Modals/ErrorModal'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Profile = ({ ...props }) => {
   const [backgroundImage, setBackgroundImage] = useState("");
@@ -19,6 +21,7 @@ const Profile = ({ ...props }) => {
   const [currentPass, setCurrentPass] = useState('');
   const [newPass, setNewPass] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
+  const incorrectCurrentPass = () => toast.error("Incorrect current password")
 
 
   const handleFileChange = (e) => {
@@ -69,6 +72,8 @@ const Profile = ({ ...props }) => {
     setModalProfile(false)
   }
 
+  const passwordChanged = () => toast.success("Successfully changed password")
+  const passwordDoesNotmatch = () => toast.error("New and confirm password does not match.")
 
   const handleChangePass = async (event) => {
     setPasswordNotmatch(false)
@@ -77,7 +82,7 @@ const Profile = ({ ...props }) => {
     try{
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      const response = await axios.post("http://localhost:5000/changePassword", {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/changePassword`, {
         user_id: Cookies.get("user_id"),
         currentPass: currentPass,
         newPass: newPass,
@@ -86,16 +91,20 @@ const Profile = ({ ...props }) => {
 
       if(response.data.message === "password changed"){
         console.log("PASSWORD CHANGED!!")
-        setModalPassword(true)
+        passwordChanged()
         setCurrentPass('')
         setConfirmPass('')
         setNewPass('')
         return;
       }
 
+      if(response.data.message === "The current password is incorrect."){
+        return incorrectCurrentPass()
+      }
+
       if(response.data.message === "New password and confirm password does not matched."){
-        setPasswordNotmatch(true)
-        return;
+        return passwordDoesNotmatch();
+        
       }
     }catch(error){
       console.log(error)
@@ -113,7 +122,7 @@ const Profile = ({ ...props }) => {
       const formData = new FormData();
       formData.append("cover_img", backgroundImage);
       formData.append("user_id", user_id);
-      const response = await axios.post("http://localhost:5000/changeCover", formData);
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/changeCover`, formData);
       if (response.data.message === "cover changed") {
         console.log("cover changed");
         console.log(backgroundImage);
@@ -137,7 +146,7 @@ const Profile = ({ ...props }) => {
       formData.append("profile_img", profileImg);
       formData.append("user_id", user_id);
   
-      const response = await axios.post("http://localhost:5000/changeProfile", formData);
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/changeProfile`, formData);
       if (response.data.message === "profile changed") {
         console.log("profile changed");
       }
@@ -166,7 +175,7 @@ const Profile = ({ ...props }) => {
       setLoading(true);
       try {
         await new Promise((resolve) => setTimeout(resolve, 3000))
-        const response = await axios.post("http://localhost:5000/updateInfo", values);
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/updateInfo`, values);
         resetForm();
         if(response.data.message === "Updated"){
         props.setUserData([])
@@ -198,7 +207,7 @@ const Profile = ({ ...props }) => {
                 <div
                   className="relative w-full border-b h-2/4 bg-center bg-cover bg-no-repeat object-cover object-center"
                   style={{
-                    backgroundImage: `url(http://localhost:5000/uploaded_img/${user.cover_img})`,
+                    backgroundImage: `url(${process.env.REACT_APP_BACKEND_URL}/uploaded_img/${user.cover_img})`,
                   }}
                 >
                   <div className="absolute inline-block right-0 bottom-0 p-2">
@@ -303,7 +312,7 @@ const Profile = ({ ...props }) => {
                     <div className="relative">
                     <img
                       className={`w-[8rem] h-[8rem] rounded-full border-4 `}
-                      src={`http://localhost:5000/uploaded_img/${user.profile_img}`}
+                      src={`${process.env.REACT_APP_BACKEND_URL}/uploaded_img/${user.profile_img}`}
                       alt=""
                     />
                     <div className="absolute bottom-0 right-0">

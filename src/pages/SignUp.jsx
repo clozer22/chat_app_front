@@ -42,7 +42,7 @@ const SignUp = () => {
       try {
         await new Promise((resolve) => setTimeout(resolve, 5000));
         const response = await axios.post(
-          "http://localhost:5000/register",
+          `${process.env.REACT_APP_BACKEND_URL}/register`,
           values
         );
 
@@ -53,6 +53,7 @@ const SignUp = () => {
 
         if (response.data.message === "User registered successfully") {
           Cookies.set("userName", response.data.userName);
+          Cookies.set("loginSuccess", true)
           navigate("/login");
           resetForm();
         } else {
