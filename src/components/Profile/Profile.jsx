@@ -555,13 +555,27 @@ const Profile = ({ ...props }) => {
                           </div>
                         </div>
                         <div className="col-span-1">
-                          <button
+                          {newPass === '' && confirmPass === '' && currentPass === '' ? (
+                            <button
+                            type="submit"
+                            disabled
+                            className="px-3  tracking-widest hover:bg-gray-700 duration-300 rounded-md  py-2 text-white text-md bg-gray-500"
+                            style={{ fontFamily: "Curetro" }}
+                          >
+                            Save
+                          </button>
+                          ):(
+                            <button
                             type="submit"
                             className="px-3 tracking-widest hover:bg-orange-700 duration-300 rounded-md  py-2 text-white text-md bg-orange-500"
                             style={{ fontFamily: "Curetro" }}
                           >
                             Save
                           </button>
+                          )}
+
+                          
+                          
                         </div>
                       </div>
                     </form>
