@@ -48,7 +48,7 @@ const ForgotPassword = () => {
     try{
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        const response = await axios.post("http://localhost:5000/resetPassword", {email: UserName, newPass: newPassword, conPass: confirmPass})
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/resetPassword`, {email: UserName, newPass: newPassword, conPass: confirmPass})
 
         if(response.data.message === "updated password"){
             Cookies.set("passReset", true)
