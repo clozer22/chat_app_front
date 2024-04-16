@@ -403,9 +403,9 @@ const LeftSideNav = ({ ...props }) => {
                           ? "border-green-500"
                           : "border-gray-500"
                       }`}
-                      src={require(`../../assets/${
+                      src={`${process.env.REACT_APP_BACKEND_URL}/uploaded_img/${
                         user.profile_img ? user.profile_img : "defaultPic.png"
-                      }`)}
+                      }`}
                       alt=""
                     />
                   </div>
