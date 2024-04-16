@@ -194,37 +194,38 @@ const Index = () => {
     setFormOpen(!isFormOpen);
   };
 
-  const handleLogout = async () => {
-    const userId = Cookies.get("user_id");
-    setLoading(true);
-    try {
+  // In handleLogout function
+const handleLogout = async () => {
+  const userId = Cookies.get("user_id");
+  setLoading(true);
+  try {
+      console.log("User ID from cookie:", userId); // Debugging: Log userId from cookie
       if(userId){
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        axiosWithCredentials
-          .post(`${process.env.REACT_APP_BACKEND_URL}/logout`, { userId: userId })
-          .then((response) => {
-            if (response.data.message === "Failed to logout") {
-              Cookies.remove("user_id");
-              navigate("/login");
-            } else {
-              console.log("may mali");
-            }
-          })
-          .catch((error) => {
-            console.error("Error logging out:", error);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          axiosWithCredentials
+              .post(`${process.env.REACT_APP_BACKEND_URL}/logout`, { userId: userId })
+              .then((response) => {
+                  if (response.data.message === "Logged out successfully") {
+                      Cookies.remove("user_id");
+                      navigate("/login");
+                  } else {
+                      console.log("may mali");
+                  }
+              })
+              .catch((error) => {
+                  console.error("Error logging out:", error);
+              })
+              .finally(() => {
+                  setLoading(false);
+              });
       }else{
-        console.log("the user id is not existing")
+          console.log("the user id is not existing")
       }
-     
-    } catch (error) {
-        console.log(userId)
+  } catch (error) {
       console.error("Error logging out:", error);
-    }
-  };
+  }
+};
+
 
  
 
