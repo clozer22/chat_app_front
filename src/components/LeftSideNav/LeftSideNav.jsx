@@ -348,7 +348,7 @@ const LeftSideNav = ({ ...props }) => {
         />
       </div>
 
-      <div className="bg-gray-900 bg-opacity-40 overflow-y-auto flex-1 ">
+      <div className="bg-gray-900 bg-opacity-40 overflow-y-auto">
         {filteredUsers.length > 0 ? (
           filteredUsers.map((user, index) => {
             const userMessages = props.messages.filter(
