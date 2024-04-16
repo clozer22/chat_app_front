@@ -508,12 +508,18 @@ const handleLogout = async () => {
                   >
                     <VscSmiley />
                   </button>
-                  {showEmojiPicker && userId && recipientId &&(
-                    <div className="absolute top-[7rem]">
-                      {" "}
-                      <EmojiPicker onEmojiClick={handleEmojiClick} />
-                    </div>
-                  )}
+                  { 
+                   userId && recipientId ?(
+                    showEmojiPicker &&(
+                      <div className="absolute top-[7rem]">
+                        {" "}
+                        <EmojiPicker onEmojiClick={handleEmojiClick} />
+                      </div>
+                    )
+                   ):(
+                    null
+                   )
+                }
                 </div>
                 {userId && recipientId ? (
                   <>
