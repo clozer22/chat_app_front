@@ -17,6 +17,7 @@ import Loading from "../components/Loading/Loading";
 import { useFetchUser } from "../components/CustomHook/CustomHook";
 import LeftSideNav from "../components/LeftSideNav/LeftSideNav";
 import RightSideNav from "../components/RightSideNav/RightSideNav";
+import Snake from 'snake-game-react';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const Index = () => {
