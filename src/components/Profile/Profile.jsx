@@ -439,14 +439,14 @@ const Profile = ({ ...props }) => {
                             onBlur={formik.handleBlur}
                             className="w-full px-2 py-2 bg-transparent border border-gray-400 focus:outline-none text-white rounded-md"
                           />
-                          
-                        </div>
-                        {/* Display validation error message */}
+                           {/* Display validation error message */}
                         {formik.touched.bio && formik.errors.bio ? (
                             <div className="text-red-500 text-sm">
                               {formik.errors.bio}
                             </div>
                           ) : null}
+                        </div>
+                       
 
                         <div className="col-span-1">
                           {formik.values.first_name.length > 0 ||
