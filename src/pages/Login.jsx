@@ -45,13 +45,7 @@ const Login = () => {
         withCredentials: false,
     });
 
-    useEffect(() => {
-        const verified = Cookies.get("verified");
 
-        if(verified){
-
-        }
-    })
 
     const formik = useFormik({
         initialValues: {
@@ -99,11 +93,11 @@ const Login = () => {
         }, 
     });
 
-    // useEffect(() => {
-    //     if(Cookies.get("user_id")){
-    //       navigate('/')
-    //     }
-    //   },[])
+    useEffect(() => {
+        if(Cookies.get("user_id")){
+          navigate('/')
+        }
+      },[])
     const passRes = Cookies.get("passReset")
 
     const passUpdated = () => toast.success("Your password is now updated")
