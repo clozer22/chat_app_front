@@ -497,17 +497,11 @@ const Index = () => {
                       )
                     ) : (
                       <div className="flex justify-center items-center h-full">
-                        <h1
-                          className="text-[2rem] text-white absolute top-[15rem]"
-                          style={{ fontFamily: "Curetro" }}
-                        >
                           <Snake
                             color1="#248ec2"
                             color2="#1d355e"
                             backgroundColor="#ebebeb"
                           />
-                          NO CHATS SELECTED
-                        </h1>
                       </div>
                     )}
                   </div>
