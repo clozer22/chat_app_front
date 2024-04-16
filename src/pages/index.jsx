@@ -217,11 +217,11 @@ const Index = () => {
             setLoading(false);
           });
       }else{
-        console.log(userId)
         console.log("the user id is not existing")
       }
      
     } catch (error) {
+        console.log(userId)
       console.error("Error logging out:", error);
     }
   };
