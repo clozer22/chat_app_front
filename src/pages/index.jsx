@@ -17,8 +17,8 @@ import Loading from "../components/Loading/Loading";
 import { useFetchUser } from "../components/CustomHook/CustomHook";
 import LeftSideNav from "../components/LeftSideNav/LeftSideNav";
 import RightSideNav from "../components/RightSideNav/RightSideNav";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const Index = () => {
   const [messages, setMessage] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -44,7 +44,7 @@ const Index = () => {
   const [isShowUnsend, setShowUnsend] = useState(null);
   const user_id = Cookies.get("user_id");
   const [selectedMessageId, setSelectedMessageId] = useState(null);
-  const welcomeMess = () => toast.success("Welcome to CHAT HUB!")
+  const welcomeMess = () => toast.success("Welcome to CHAT HUB!");
 
   const handleEmojiClick = (emojiData, event) => {
     const emoji = emojiData.emoji;
@@ -52,11 +52,10 @@ const Index = () => {
     setNewMessage((prevMessage) => prevMessage + emoji);
   };
 
-  
   const axiosWithCredentials = axios.create({
     baseURL: process.env.REACT_APP_BACKEND_URL,
     withCredentials: true,
-    withXSRFToken: true
+    withXSRFToken: true,
   });
 
   useEffect(() => {
@@ -121,7 +120,7 @@ const Index = () => {
   useEffect(() => {
     const LoggedIn = Cookies.get("LoggedIn");
     if (LoggedIn) {
-      welcomeMess()
+      welcomeMess();
       setTimeout(() => {
         Cookies.remove("LoggedIn");
       }, 2000);
@@ -133,20 +132,20 @@ const Index = () => {
 
     const fetchData = async () => {
       try {
-        if(user_id){
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/getUsers/${user_id}`
-        );
-        if (response.data.message === "Successfully get all the users") {
-          return setUserInfo(response.data.users);
-        }
+        if (user_id) {
+          const response = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/getUsers/${user_id}`
+          );
+          if (response.data.message === "Successfully get all the users") {
+            return setUserInfo(response.data.users);
+          }
 
-        if(response.data.message === "No users"){
-          return setUserInfo(response.data.users)
+          if (response.data.message === "No users") {
+            return setUserInfo(response.data.users);
+          }
+        } else {
+          console.log("User ID is empty or not existing in cookies");
         }
-      }else{
-        console.log("User ID is empty or not existing in cookies");
-      }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -157,7 +156,7 @@ const Index = () => {
 
   useEffect(() => {
     const user_id = Cookies.get("user_id");
-  
+
     const fetchData = async () => {
       try {
         if (user_id) {
@@ -177,10 +176,9 @@ const Index = () => {
         console.error("Error fetching data:", error);
       }
     };
-  
+
     fetchData();
   }, [messages, userInfo]);
-  
 
   const handleMenuOpen = () => {
     if (!isMenuOpen) {
@@ -195,40 +193,39 @@ const Index = () => {
   };
 
   // In handleLogout function
-const handleLogout = async () => {
-  const userId = Cookies.get("user_id");
-  setLoading(true);
-  try {
+  const handleLogout = async () => {
+    const userId = Cookies.get("user_id");
+    setLoading(true);
+    try {
       console.log("User ID from cookie:", userId); // Debugging: Log userId from cookie
-      if(userId){
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          axiosWithCredentials
-              .post(`${process.env.REACT_APP_BACKEND_URL}/logout`, { userId: userId })
-              .then((response) => {
-                  if (response.data.message === "Failed to logout") {
-                      Cookies.remove("user_id");
-                      Cookies.remove("userName")
-                      navigate("/login");
-                  } else {
-                      console.log("may mali");
-                  }
-              })
-              .catch((error) => {
-                  console.error("Error logging out:", error);
-              })
-              .finally(() => {
-                  setLoading(false);
-              });
-      }else{
-          console.log("the user id is not existing")
+      if (userId) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        axiosWithCredentials
+          .post(`${process.env.REACT_APP_BACKEND_URL}/logout`, {
+            userId: userId,
+          })
+          .then((response) => {
+            if (response.data.message === "Failed to logout") {
+              Cookies.remove("user_id");
+              Cookies.remove("userName");
+              navigate("/login");
+            } else {
+              console.log("may mali");
+            }
+          })
+          .catch((error) => {
+            console.error("Error logging out:", error);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      } else {
+        console.log("the user id is not existing");
       }
-  } catch (error) {
+    } catch (error) {
       console.error("Error logging out:", error);
-  }
-};
-
-
- 
+    }
+  };
 
   const handleDeleteForm = () => {
     setDeleteFormOpen(!isDeleteFormOpen);
@@ -285,13 +282,13 @@ const handleLogout = async () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if(user_id){
+        if (user_id) {
           const response = await axiosWithCredentials.get(
             `${process.env.REACT_APP_BACKEND_URL}/getUserData/${user_id}`
           );
           setUserData(response.data.user_data);
-        }else{
-          console.log("User ID is empty or not existing in cookies")
+        } else {
+          console.log("User ID is empty or not existing in cookies");
         }
       } catch (error) {}
     };
@@ -305,7 +302,7 @@ const handleLogout = async () => {
   };
   return (
     <div className="flex justify-center items-center w-full mx-0">
-        <ToastContainer />
+      <ToastContainer />
       {showAddedModal ? <SuccessModal label="Added Successfully" /> : null}
 
       {isLoading && <Loading />}
@@ -356,7 +353,9 @@ const handleLogout = async () => {
                             <div>
                               <img
                                 className="w-10 h-10 rounded-full"
-                                src={`${process.env.REACT_APP_BACKEND_URL}/uploaded_img/${
+                                src={`${
+                                  process.env.REACT_APP_BACKEND_URL
+                                }/uploaded_img/${
                                   user.profile_img
                                     ? user.profile_img
                                     : "defaultPic.png"
@@ -383,7 +382,13 @@ const handleLogout = async () => {
                 )}
                 {userId && recipientId && (
                   <div className="flex">
-                    <button onClick={(() => navigate('/'))} className="text-white tracking-widest px-2 py-1 rounded-full bg-gray-500 hover:bg-gray-700 duration-300" style={{ fontFamily: "Curetro" }}>Close</button>
+                    <button
+                      onClick={() => navigate("/")}
+                      className="text-white tracking-widest px-2 py-1 rounded-full bg-gray-500 hover:bg-gray-700 duration-300"
+                      style={{ fontFamily: "Curetro" }}
+                    >
+                      Close
+                    </button>
                   </div>
                 )}
               </div>
@@ -469,22 +474,24 @@ const handleLogout = async () => {
                       ) : (
                         <>
                           {userInfo.map((user) => {
-                            if(user.user_id === parseInt(recipientId)){
-                              return(
-                                <div key={user.user_id} className="flex justify-center w-full items-center h-full">
-                                <h1
-                                className="text-[2rem] text-white absolute top-[15rem]"
-                                style={{ fontFamily: "Curetro" }}
-                              >
-                                Say hello to {user.user_name}
-                              </h1>
+                            if (user.user_id === parseInt(recipientId)) {
+                              return (
+                                <div
+                                  key={user.user_id}
+                                  className="flex justify-center w-full items-center h-full"
+                                >
+                                  <h1
+                                    className="text-[2rem] text-white absolute top-[15rem]"
+                                    style={{ fontFamily: "Curetro" }}
+                                  >
+                                    Say hello to {user.user_name}
+                                  </h1>
                                 </div>
-                              )
+                              );
                             }
                             return null;
-                          }
-                          )}
-                          </>
+                          })}
+                        </>
                       )
                     ) : (
                       <div className="flex justify-center items-center h-full">
@@ -499,58 +506,50 @@ const handleLogout = async () => {
                   </div>
                 </div>
               </ScrollToBottom>
-
+              {userId && recipientId ? (
               <div className="bg-gray-900 px-4 py-4 flex items-center">
                 <div>
-                
-                  { 
-                   userId && recipientId ?(
-                    <button
+                  <button
                     className="text-2xl text-white"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                   >
                     <VscSmiley />
                   </button>
-                   ):(
-                    null
-                   )
-                }
 
-                {
-                   showEmojiPicker &&(
+                  {showEmojiPicker && (
                     <div className="absolute top-[7rem]">
                       {" "}
                       <EmojiPicker onEmojiClick={handleEmojiClick} />
                     </div>
-                  )
-                }
+                  )}
                 </div>
                 {userId && recipientId ? (
                   <>
-                <div className="flex-1 ml-4">
-                  <input
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    className={`w-full bg-gray-100 px-3 py-2 rounded-full`}
-                    placeholder="Type a message"
-                    onKeyDown={handleKeyDown}
-                  />
-                </div>
-                <div className="ml-4">
-                  <button
-                    onClick={sendMessage}
-                    className="bg-orange-500 tracking-wider px-4 py-2 rounded-full text-white"
-                    style={{ fontFamily: "Curetro" }}
-                  >
-                    Send
-                  </button>
-                </div>
-                </>
-                ):(
-                  null
-                )}
+                    <div className="flex-1 ml-4">
+                      <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        className={`w-full bg-gray-100 px-3 py-2 rounded-full`}
+                        placeholder="Type a message"
+                        onKeyDown={handleKeyDown}
+                      />
+                    </div>
+                    <div className="ml-4">
+                      <button
+                        onClick={sendMessage}
+                        className="bg-orange-500 tracking-wider px-4 py-2 rounded-full text-white"
+                        style={{ fontFamily: "Curetro" }}
+                      >
+                        Send
+                      </button>
+                    </div>
+                  </>
+                ) : null}
               </div>
+              ):(
+              null
+              )}
             </div>
             {userId && recipientId ? (
               <RightSideNav
