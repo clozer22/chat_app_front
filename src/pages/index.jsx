@@ -19,6 +19,8 @@ import LeftSideNav from "../components/LeftSideNav/LeftSideNav";
 import RightSideNav from "../components/RightSideNav/RightSideNav";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Snake from "snake-game-react";
+
 const Index = () => {
   const [messages, setMessage] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -499,6 +501,11 @@ const Index = () => {
                           className="text-[2rem] text-white absolute top-[15rem]"
                           style={{ fontFamily: "Curetro" }}
                         >
+                          <Snake
+                            color1="#248ec2"
+                            color2="#1d355e"
+                            backgroundColor="#ebebeb"
+                          />
                           NO CHATS SELECTED
                         </h1>
                       </div>
@@ -507,49 +514,47 @@ const Index = () => {
                 </div>
               </ScrollToBottom>
               {userId && recipientId ? (
-              <div className="bg-gray-900 px-4 py-4 flex items-center">
-                <div>
-                  <button
-                    className="text-2xl text-white"
-                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                  >
-                    <VscSmiley />
-                  </button>
+                <div className="bg-gray-900 px-4 py-4 flex items-center">
+                  <div>
+                    <button
+                      className="text-2xl text-white"
+                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    >
+                      <VscSmiley />
+                    </button>
 
-                  {showEmojiPicker && (
-                    <div className="absolute top-[7rem]">
-                      {" "}
-                      <EmojiPicker onEmojiClick={handleEmojiClick} />
-                    </div>
-                  )}
+                    {showEmojiPicker && (
+                      <div className="absolute top-[7rem]">
+                        {" "}
+                        <EmojiPicker onEmojiClick={handleEmojiClick} />
+                      </div>
+                    )}
+                  </div>
+                  {userId && recipientId ? (
+                    <>
+                      <div className="flex-1 ml-4">
+                        <input
+                          type="text"
+                          value={newMessage}
+                          onChange={(e) => setNewMessage(e.target.value)}
+                          className={`w-full bg-gray-100 px-3 py-2 rounded-full`}
+                          placeholder="Type a message"
+                          onKeyDown={handleKeyDown}
+                        />
+                      </div>
+                      <div className="ml-4">
+                        <button
+                          onClick={sendMessage}
+                          className="bg-orange-500 tracking-wider px-4 py-2 rounded-full text-white"
+                          style={{ fontFamily: "Curetro" }}
+                        >
+                          Send
+                        </button>
+                      </div>
+                    </>
+                  ) : null}
                 </div>
-                {userId && recipientId ? (
-                  <>
-                    <div className="flex-1 ml-4">
-                      <input
-                        type="text"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        className={`w-full bg-gray-100 px-3 py-2 rounded-full`}
-                        placeholder="Type a message"
-                        onKeyDown={handleKeyDown}
-                      />
-                    </div>
-                    <div className="ml-4">
-                      <button
-                        onClick={sendMessage}
-                        className="bg-orange-500 tracking-wider px-4 py-2 rounded-full text-white"
-                        style={{ fontFamily: "Curetro" }}
-                      >
-                        Send
-                      </button>
-                    </div>
-                  </>
-                ) : null}
-              </div>
-              ):(
-              null
-              )}
+              ) : null}
             </div>
             {userId && recipientId ? (
               <RightSideNav
