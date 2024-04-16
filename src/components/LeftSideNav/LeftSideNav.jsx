@@ -196,7 +196,6 @@ const LeftSideNav = ({ ...props }) => {
   return (
     <div className="w-1/4 border flex flex-col ">
       {isLoading && <Loading />}
-      <ToastContainer />
       {showNotExistModal && (
         <ErrorModal
           setShowAlert1={setShowNotExistModal}

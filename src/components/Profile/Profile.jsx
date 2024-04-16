@@ -199,6 +199,7 @@ const Profile = ({ ...props }) => {
   return (
     <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-40 bg-black bg-opacity-55">
       {isLoading && <Loading />}
+      <ToastContainer />
       {showModalPassword && <SuccessModal label="Your password is now updated" />}
       {showPasswordNotMatch && <ErrorModal setShowAlert1={setPasswordNotmatch} label="Please double-check your new password and confirm password." />}
       <div className="absolute inset-0 flex justify-center items-center">
