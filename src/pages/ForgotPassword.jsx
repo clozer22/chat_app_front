@@ -26,6 +26,7 @@ const ForgotPassword = () => {
   const UserName = Cookies.get("user_name")
 
   const VerifiedMessage = () => toast.success("Your username is verified")
+  const doesntMatch = () => toast.error("The new password and confirm password does not match")
 
 
   useEffect(() => {
@@ -52,6 +53,10 @@ const ForgotPassword = () => {
         if(response.data.message === "updated password"){
             Cookies.set("passReset", true)
             navigate('/login')
+        }
+
+        if(response.data.message === "The new password and confirm password does not match"){
+          doesntMatch()
         }
 
     }catch(error){
