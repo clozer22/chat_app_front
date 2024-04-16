@@ -345,7 +345,7 @@ const Index = () => {
                 userId && recipientId ? "w-2/4" : "w-3/4"
               } border flex flex-col`}
             >
-              <div className="py-2 px-3 bg-gray-900 flex flex-row justify-between items-center">
+              <div className="">
                 {userId && recipientId ? (
                   <div className="flex items-center">
                     {userInfo.map((user) => {
