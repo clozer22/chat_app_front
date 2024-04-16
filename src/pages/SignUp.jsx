@@ -15,6 +15,7 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const axiosWithCredentials = axios.create({
+    baseURL: process.env.REACT_APP_BACKEND_URL,
     withCredentials: true,
   });
 
@@ -89,6 +90,7 @@ const SignUp = () => {
         <div className="w-full max-w-lg">
           <div className="">
             <form
+            method="POST"
               onSubmit={formik.handleSubmit}
               className="m-4 p-10 bg-gray-800 bg-opacity-35 rounded shadow-xl"
             >
@@ -151,7 +153,7 @@ const SignUp = () => {
                 <div className="col-span-6">
                   <label
                     className="block  text-sm text-white"
-                    htmlFor="username"
+                    htmlFor="userName"
                   >
                     Username
                   </label>
