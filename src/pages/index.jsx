@@ -434,7 +434,7 @@ const handleLogout = async () => {
                               </>
                             ) : (
                               <>
-                                <div className="ml-2 py-2 px-2 bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl text-white">
+                                <div className="ml-2 py-2 px-2 bg-gray-400 rounded-br-3xl rounded-tr-3xl max-w-[15rem] rounded-tl-xl text-white">
                                   <div>{message.message}</div>
                                 </div>
                                 <div className="relative  px-1 py-1 rounded-full  mr-2 bg-opacity-35">

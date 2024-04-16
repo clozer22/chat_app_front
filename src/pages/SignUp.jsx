@@ -14,9 +14,7 @@ const SignUp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const sample_mess = () => toast.info("sana gumana");
 
-  sample_mess()
 
  
   const axiosWithCredentials = axios.create({
