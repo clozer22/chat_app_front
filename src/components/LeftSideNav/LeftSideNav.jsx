@@ -428,8 +428,8 @@ const LeftSideNav = ({ ...props }) => {
                           : ""}
                         {lastMessage && (
                           <span className="px-1">
-                            {lastMessage.message.length > 8
-                              ? `${lastMessage.message.substring(0, 8)}...`
+                            {lastMessage.message.length > 15
+                              ? `${lastMessage.message.substring(0, 15)}...`
                               : lastMessage.message}
                           </span>
                         )}
