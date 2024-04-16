@@ -205,8 +205,9 @@ const handleLogout = async () => {
           axiosWithCredentials
               .post(`${process.env.REACT_APP_BACKEND_URL}/logout`, { userId: userId })
               .then((response) => {
-                  if (response.data.message === "Logged out successfully") {
+                  if (response.data.message === "Failed to logout") {
                       Cookies.remove("user_id");
+                      Cookies.remove("userName")
                       navigate("/login");
                   } else {
                       console.log("may mali");
