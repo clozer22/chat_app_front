@@ -470,9 +470,9 @@ const LeftSideNav = ({ ...props }) => {
             <div key={user.user_id} className=" grid grid-cols-5">
               <div className="flex justify-start items-center gap-2 p-2 col-span-3">
                 <img
-                  src={require(`../../assets/${
+                  src={`${process.env.REACT_APP_BACKEND_URL}/${
                     user.profile_img ? user.profile_img : "defaultPic.png"
-                  }`)}
+                  }`}
                   className={`h-12 w-12 border-2 rounded-full ${
                     user.status === "Active Now"
                       ? "border-green-500"
