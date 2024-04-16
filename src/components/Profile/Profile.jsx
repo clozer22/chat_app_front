@@ -223,6 +223,7 @@ const Profile = ({ ...props }) => {
                       onChange={handleFileChange}
                       type="file"
                       className="hidden"
+                      accept=".jpg, .png, .jpeg"
                     />
                   </div>
                 </div>
