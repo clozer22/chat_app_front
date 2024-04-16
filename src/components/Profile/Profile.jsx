@@ -555,7 +555,7 @@ const Profile = ({ ...props }) => {
                           </div>
                         </div>
                         <div className="col-span-1">
-                          {newPass === '' && confirmPass === '' && currentPass === '' ? (
+                          {newPass === '' || confirmPass === '' || currentPass === '' ? (
                             <button
                             type="submit"
                             disabled
