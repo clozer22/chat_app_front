@@ -173,27 +173,28 @@ const Profile = ({ ...props }) => {
       bio: Yup.string()
         .max(15, "Bio must be at most 15 characters"),
     }),
-    onSubmit: async (values, {resetForm}) => {
+    onSubmit: async (values, { resetForm }) => {
       setLoading(true);
       try {
-        if(values.bio.length === 15){
-          return limitReached()
+        if (values.bio.length === 15) {
+          limitReached();
+          return;
         }
-
+  
         await new Promise((resolve) => setTimeout(resolve, 3000))
         const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/updateInfo`, values);
         resetForm();
-        if(response.data.message === "Updated"){
-        props.setUserData([])
+        if (response.data.message === "Updated") {
+          props.setUserData([]);
         }
       } catch (error) {
         console.error(error);
       } finally {
         setLoading(false);
       }
-       
     },
   });
+  
 
   return (
     <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-40 bg-black bg-opacity-55">
