@@ -201,7 +201,7 @@ const Index = () => {
       if(user_id){
         await new Promise((resolve) => setTimeout(resolve, 2000));
         axiosWithCredentials
-          .post(`${process.env.REACT_APP_BACKEND_URL}/logout`, { userId })
+          .post(`${process.env.REACT_APP_BACKEND_URL}/logout`, { userId: userId })
           .then((response) => {
             if (response.data.message === "Logged out successfully") {
               Cookies.remove("user_id");
