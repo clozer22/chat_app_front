@@ -22,6 +22,7 @@ const Login = () => {
 
     const accountCreated = () => toast.success("Successfully Registered")
     const wrongPass = () => toast.error("Wrong username/password combination!")
+    const showAlertNotExistMess = () => toast.error("Username doesn't exist")
 
     useEffect(() => {
         if(isCreated){
@@ -78,7 +79,7 @@ const Login = () => {
                 }
 
                 if(response.data.message === "Username is not exist"){
-                    setshowAlertNotExist(true)
+                    showAlertNotExistMess()
                     return;
                 }
 
