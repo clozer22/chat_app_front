@@ -189,6 +189,7 @@ const SignUp = () => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.password}
+                    autoComplete="current-password" 
                   />
                   <span
                     className="absolute inset-y-0 top-[1.2rem] right-0 flex items-center pr-3 cursor-pointer"
