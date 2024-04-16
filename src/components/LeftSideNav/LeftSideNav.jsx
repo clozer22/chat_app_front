@@ -420,7 +420,7 @@ const LeftSideNav = ({ ...props }) => {
                           ? "You: "
                           : ""}
                         {lastMessage && (
-                          <span className="px-1">{lastMessage.message}</span>
+                          <span className="px-1 text-ellipsis">{lastMessage.message}</span>
                         )}
                       </p>
                     </div>
