@@ -19,7 +19,6 @@ import LeftSideNav from "../components/LeftSideNav/LeftSideNav";
 import RightSideNav from "../components/RightSideNav/RightSideNav";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Snake from 'snake-game-react';
 
 const Index = () => {
   const [messages, setMessage] = useState([]);
@@ -345,7 +344,7 @@ const Index = () => {
                 userId && recipientId ? "w-2/4" : "w-3/4"
               } border flex flex-col`}
             >
-              <div className="">
+              <div className="py-2 px-3 bg-gray-900 flex flex-row justify-between items-center">
                 {userId && recipientId ? (
                   <div className="flex items-center">
                     {userInfo.map((user) => {
