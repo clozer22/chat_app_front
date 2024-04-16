@@ -5,10 +5,10 @@ import { FaEdit, FaEye, FaEyeSlash, FaTimes } from "react-icons/fa";
 import Loading from "../Loading/Loading";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import SuccessModal from '../Modals/SuccessModal'
-import ErrorModal from '../Modals/ErrorModal'
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import SuccessModal from "../Modals/SuccessModal";
+import ErrorModal from "../Modals/ErrorModal";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Profile = ({ ...props }) => {
   const [backgroundImage, setBackgroundImage] = useState("");
@@ -18,11 +18,10 @@ const Profile = ({ ...props }) => {
   const [isLoading, setLoading] = useState(false);
   const [showModalPassword, setModalPassword] = useState(false);
   const [showPasswordNotMatch, setPasswordNotmatch] = useState(false);
-  const [currentPass, setCurrentPass] = useState('');
-  const [newPass, setNewPass] = useState('');
-  const [confirmPass, setConfirmPass] = useState('');
-  const incorrectCurrentPass = () => toast.error("Incorrect current password")
-
+  const [currentPass, setCurrentPass] = useState("");
+  const [newPass, setNewPass] = useState("");
+  const [confirmPass, setConfirmPass] = useState("");
+  const incorrectCurrentPass = () => toast.error("Incorrect current password");
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -34,21 +33,21 @@ const Profile = ({ ...props }) => {
 
   const handleFileChange2 = (e) => {
     const file = e.target.files[0];
-      setProfileImg(file);
-      setModalProfile(!showModalProfile);
+    setProfileImg(file);
+    setModalProfile(!showModalProfile);
   };
 
   const handleProfileSubmit = () => {
-        setProfileImg('')
-        setModalProfile(!showModalProfile)
-  }
+    setProfileImg("");
+    setModalProfile(!showModalProfile);
+  };
 
   const handleOpenAndCloseModal = () => {
-    setShowModal(!showModal)
-    setProfileImg('')
-    setModalProfile(!showModalProfile)
-  }
-  
+    setShowModal(!showModal);
+    setProfileImg("");
+    setModalProfile(!showModalProfile);
+  };
+
   const [showPassword, setShowPassword] = useState({
     current: false,
     new: false,
@@ -68,50 +67,56 @@ const Profile = ({ ...props }) => {
   };
 
   const handleCloseProfileModal = () => {
-    setProfileImg('')
-    setModalProfile(false)
-  }
+    setProfileImg("");
+    setModalProfile(false);
+  };
 
-  const passwordChanged = () => toast.success("Successfully changed password")
-  const passwordDoesNotmatch = () => toast.error("New and confirm password does not match.")
+  const passwordChanged = () => toast.success("Successfully changed password");
+  const passwordDoesNotmatch = () =>
+    toast.error("New and confirm password does not match.");
 
   const handleChangePass = async (event) => {
-    setPasswordNotmatch(false)
+    setPasswordNotmatch(false);
     event.preventDefault();
-    setLoading(true)
-    try{
+    setLoading(true);
+    try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/changePassword`, {
-        user_id: Cookies.get("user_id"),
-        currentPass: currentPass,
-        newPass: newPass,
-        confirmPass: confirmPass
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/changePassword`,
+        {
+          user_id: Cookies.get("user_id"),
+          currentPass: currentPass,
+          newPass: newPass,
+          confirmPass: confirmPass,
+        }
+      );
 
-      if(response.data.message === "password changed"){
-        console.log("PASSWORD CHANGED!!")
-        passwordChanged()
-        setCurrentPass('')
-        setConfirmPass('')
-        setNewPass('')
+      if (response.data.message === "password changed") {
+        console.log("PASSWORD CHANGED!!");
+        passwordChanged();
+        setCurrentPass("");
+        setConfirmPass("");
+        setNewPass("");
         return;
       }
 
-      if(response.data.message === "The current password is incorrect."){
-        return incorrectCurrentPass()
+      if (response.data.message === "The current password is incorrect.") {
+        return incorrectCurrentPass();
       }
 
-      if(response.data.message === "New password and confirm password does not matched."){
+      if (
+        response.data.message ===
+        "New password and confirm password does not matched."
+      ) {
         return passwordDoesNotmatch();
-        
       }
-    }catch(error){
-      console.log(error)
-    }finally{
-      setLoading(false)
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   const handleChangeCover = async () => {
     const user_id = Cookies.get("user_id");
@@ -122,7 +127,10 @@ const Profile = ({ ...props }) => {
       const formData = new FormData();
       formData.append("cover_img", backgroundImage);
       formData.append("user_id", user_id);
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/changeCover`, formData);
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/changeCover`,
+        formData
+      );
       if (response.data.message === "cover changed") {
         console.log("cover changed");
         console.log(backgroundImage);
@@ -137,16 +145,19 @@ const Profile = ({ ...props }) => {
 
   const handleChangeProfile = async (event) => {
     event.preventDefault();
-    setModalProfile(!showModalProfile)
+    setModalProfile(!showModalProfile);
     const user_id = Cookies.get("user_id");
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 3000))
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       const formData = new FormData();
       formData.append("profile_img", profileImg);
       formData.append("user_id", user_id);
-  
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/changeProfile`, formData);
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/changeProfile`,
+        formData
+      );
       if (response.data.message === "profile changed") {
         console.log("profile changed");
       }
@@ -157,9 +168,7 @@ const Profile = ({ ...props }) => {
     }
   };
 
-  const limitReached = () => toast.info("Only 15 characters allowed")
-  
-
+  const limitReached = () => toast.info("Only 15 characters allowed");
 
   const formik = useFormik({
     initialValues: {
@@ -170,8 +179,7 @@ const Profile = ({ ...props }) => {
       user_id: Cookies.get("user_id"),
     },
     validationSchema: Yup.object({
-      bio: Yup.string()
-        .max(15, "Bio must be at most 15 characters"),
+      bio: Yup.string().max(15, "Bio must be at most 15 characters"),
     }),
     onSubmit: async (values, { resetForm }) => {
       setLoading(true);
@@ -180,9 +188,12 @@ const Profile = ({ ...props }) => {
           limitReached();
           return;
         }
-  
-        await new Promise((resolve) => setTimeout(resolve, 3000))
-        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/updateInfo`, values);
+
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        const response = await axios.post(
+          `${process.env.REACT_APP_BACKEND_URL}/updateInfo`,
+          values
+        );
         resetForm();
         if (response.data.message === "Updated") {
           props.setUserData([]);
@@ -194,14 +205,20 @@ const Profile = ({ ...props }) => {
       }
     },
   });
-  
 
   return (
     <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-40 bg-black bg-opacity-55">
       {isLoading && <Loading />}
       <ToastContainer />
-      {showModalPassword && <SuccessModal label="Your password is now updated" />}
-      {showPasswordNotMatch && <ErrorModal setShowAlert1={setPasswordNotmatch} label="Please double-check your new password and confirm password." />}
+      {showModalPassword && (
+        <SuccessModal label="Your password is now updated" />
+      )}
+      {showPasswordNotMatch && (
+        <ErrorModal
+          setShowAlert1={setPasswordNotmatch}
+          label="Please double-check your new password and confirm password."
+        />
+      )}
       <div className="absolute inset-0 flex justify-center items-center">
         <div className="absolute bg-gray-900 w-9/12 h-4/5  flex justify-center  rounded-md">
           <div className="absolute top-2 right-5 z-50">
@@ -283,10 +300,7 @@ const Profile = ({ ...props }) => {
                     <div className="absolute inset-0 flex justify-center items-center">
                       <div className="absolute bg-gray-900 flex max-w-[40rem] justify-center items-center px-5 rounded-md">
                         <div className="absolute top-2 right-2"></div>
-                        <form
-                          action=""
-                          onSubmit={handleChangeProfile}
-                        >
+                        <form action="" onSubmit={handleChangeProfile}>
                           <div className="w-full m-5">
                             <h2
                               className="text-white tracking-widest"
@@ -320,26 +334,26 @@ const Profile = ({ ...props }) => {
                 <div className="relative">
                   <div className="absolute left-2 top-[-4rem]">
                     <div className="relative">
-                    <img
-                      className={`w-[8rem] h-[8rem] rounded-full border-4 `}
-                      src={`${process.env.REACT_APP_BACKEND_URL}/uploaded_img/${user.profile_img}`}
-                      alt=""
-                    />
-                    <div className="absolute bottom-0 right-0">
-                    <label
-                      htmlFor="profile"
-                      className="cursor-pointer  flex items-center text-black font-bold   rounded"
-                    >
-                      <FaEdit className="text-lg text-white" />
-                    </label>
-                    <input
-                      id="profile"
-                      onChange={handleFileChange2}
-                      name="profile_img"
-                      type="file"
-                      className="hidden"
-                    />
-                    </div>
+                      <img
+                        className={`w-[8rem] h-[8rem] rounded-full border-4 `}
+                        src={`${process.env.REACT_APP_BACKEND_URL}/uploaded_img/${user.profile_img}`}
+                        alt=""
+                      />
+                      <div className="absolute bottom-0 right-0">
+                        <label
+                          htmlFor="profile"
+                          className="cursor-pointer  flex items-center text-black font-bold   rounded"
+                        >
+                          <FaEdit className="text-lg text-white" />
+                        </label>
+                        <input
+                          id="profile"
+                          onChange={handleFileChange2}
+                          name="profile_img"
+                          type="file"
+                          className="hidden"
+                        />
+                      </div>
                     </div>
                   </div>
                   <div className="absolute left-[10rem]">
@@ -417,36 +431,47 @@ const Profile = ({ ...props }) => {
                             type="text"
                             id="bio"
                             name="bio"
-                            placeholder={user.bio ? user.bio : 'Say something about you...'}
+                            placeholder={
+                              user.bio ? user.bio : "Say something about you..."
+                            }
                             value={formik.values.bio}
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
                             className="w-full px-2 py-2 bg-transparent border border-gray-400 focus:outline-none text-white rounded-md"
                           />
+                          
                         </div>
+                        {/* Display validation error message */}
+                        {formik.touched.bio && formik.errors.bio ? (
+                            <div className="text-red-500 text-sm">
+                              {formik.errors.bio}
+                            </div>
+                          ) : null}
+
                         <div className="col-span-1">
-                        {formik.values.first_name.length > 0 || formik.values.user_name.length > 0 || formik.values.last_name.length > 0 || formik.values.bio.length > 0 ?(
-                        <button
-                        type="submit"
-                        className="px-3 tracking-widest hover:bg-orange-700 duration-300 rounded-md py-2 text-white text-md bg-orange-500"
-                        style={{ fontFamily: "Curetro" }}
-                        >
-                            Save
-                        </button>
-                        ) : (
+                          {formik.values.first_name.length > 0 ||
+                          formik.values.user_name.length > 0 ||
+                          formik.values.last_name.length > 0 ||
+                          formik.values.bio.length > 0 ? (
                             <button
-                            type="submit"
-                            disabled
-                            className="px-3 tracking-widest  duration-300 rounded-md py-2 text-white text-md bg-gray-500"
-                            style={{ fontFamily: "Curetro" }}
-                          >
+                              type="submit"
+                              className="px-3 tracking-widest hover:bg-orange-700 duration-300 rounded-md py-2 text-white text-md bg-orange-500"
+                              style={{ fontFamily: "Curetro" }}
+                            >
                               Save
-                          </button>
-                        )}
-                     
+                            </button>
+                          ) : (
+                            <button
+                              type="submit"
+                              disabled
+                              className="px-3 tracking-widest  duration-300 rounded-md py-2 text-white text-md bg-gray-500"
+                              style={{ fontFamily: "Curetro" }}
+                            >
+                              Save
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      </div>
-                     
                     </form>
                   </div>
                 </div>
@@ -465,7 +490,7 @@ const Profile = ({ ...props }) => {
                             <input
                               autoComplete="current-password"
                               value={currentPass}
-                             onChange={((e) => setCurrentPass(e.target.value))}
+                              onChange={(e) => setCurrentPass(e.target.value)}
                               type={showPassword.current ? "text" : "password"}
                               className="w-full px-2 py-2 bg-transparent border border-gray-400 focus:outline-none text-white rounded-md"
                             />
@@ -487,9 +512,9 @@ const Profile = ({ ...props }) => {
                           </label>
                           <div className="relative">
                             <input
-                            autoComplete="new-password"
+                              autoComplete="new-password"
                               value={newPass}
-                             onChange={((e) => setNewPass(e.target.value))}
+                              onChange={(e) => setNewPass(e.target.value)}
                               type={showPassword.new ? "text" : "password"}
                               className="w-full px-2 py-2 bg-transparent border border-gray-400 focus:outline-none text-white rounded-md"
                             />
@@ -513,7 +538,7 @@ const Profile = ({ ...props }) => {
                             <input
                               autoComplete="confirm-password"
                               value={confirmPass}
-                              onChange={((e) => setConfirmPass(e.target.value))}
+                              onChange={(e) => setConfirmPass(e.target.value)}
                               type={showPassword.confirm ? "text" : "password"}
                               className="w-full px-2 py-2 bg-transparent border border-gray-400 focus:outline-none text-white rounded-md"
                             />
@@ -531,7 +556,7 @@ const Profile = ({ ...props }) => {
                         </div>
                         <div className="col-span-1">
                           <button
-                          type="submit"
+                            type="submit"
                             className="px-3 tracking-widest hover:bg-orange-700 duration-300 rounded-md  py-2 text-white text-md bg-orange-500"
                             style={{ fontFamily: "Curetro" }}
                           >
