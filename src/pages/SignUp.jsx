@@ -7,12 +7,16 @@ import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading/Loading";
 import ErrorModal from "../components/Modals/ErrorModal";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const SignUp = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const sample_mess = () => toast.info("sana gumana");
+
+  sample_mess()
 
   const axiosWithCredentials = axios.create({
     baseURL: process.env.REACT_APP_BACKEND_URL,
@@ -166,6 +170,7 @@ const SignUp = () => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.userName}
+                    autoComplete="username"
                   />
                   {formik.touched.userName && formik.errors.userName ? (
                     <div className="text-red-500 text-sm">
