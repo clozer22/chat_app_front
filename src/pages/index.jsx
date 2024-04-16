@@ -497,11 +497,11 @@ const Index = () => {
                       )
                     ) : (
                       <div className="flex justify-center items-center h-full">
-                          <Snake
+                          {/* <Snake
                             color1="#248ec2"
                             color2="#1d355e"
                             backgroundColor="#ebebeb"
-                          />
+                          /> */}
                       </div>
                     )}
                   </div>
