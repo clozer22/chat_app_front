@@ -156,6 +156,8 @@ const Profile = ({ ...props }) => {
       setLoading(false);
     }
   };
+
+  const limitReached = () => toast.info("Only 15 characters allowed")
   
 
 
@@ -174,6 +176,10 @@ const Profile = ({ ...props }) => {
     onSubmit: async (values, {resetForm}) => {
       setLoading(true);
       try {
+        if(values.bio.length === 15){
+          return limitReached()
+        }
+
         await new Promise((resolve) => setTimeout(resolve, 3000))
         const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/updateInfo`, values);
         resetForm();
@@ -185,6 +191,7 @@ const Profile = ({ ...props }) => {
       } finally {
         setLoading(false);
       }
+       
     },
   });
 
