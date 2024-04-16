@@ -52,6 +52,13 @@ const Index = () => {
     setNewMessage((prevMessage) => prevMessage + emoji);
   };
 
+  
+  const axiosWithCredentials = axios.create({
+    baseURL: process.env.REACT_APP_BACKEND_URL,
+    withCredentials: true,
+    withXSRFToken: true
+  });
+
   useEffect(() => {
     scrollBottom();
   }, []);
@@ -191,23 +198,28 @@ const Index = () => {
     const userId = Cookies.get("user_id");
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      axios
-        .post(`${process.env.REACT_APP_BACKEND_URL}/logout`, { userId })
-        .then((response) => {
-          if (response.data.message === "Logged out successfully") {
-            Cookies.remove("user_id");
-            navigate("/login");
-          } else {
-            console.log("may mali");
-          }
-        })
-        .catch((error) => {
-          console.error("Error logging out:", error);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+      if(user_id){
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        axiosWithCredentials
+          .post(`${process.env.REACT_APP_BACKEND_URL}/logout`, { userId })
+          .then((response) => {
+            if (response.data.message === "Logged out successfully") {
+              Cookies.remove("user_id");
+              navigate("/login");
+            } else {
+              console.log("may mali");
+            }
+          })
+          .catch((error) => {
+            console.error("Error logging out:", error);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      }else{
+        console.log("the user id is not existing")
+      }
+     
     } catch (error) {
       console.error("Error logging out:", error);
     }
