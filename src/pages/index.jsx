@@ -217,6 +217,7 @@ const Index = () => {
             setLoading(false);
           });
       }else{
+        console.log(userId)
         console.log("the user id is not existing")
       }
      
@@ -283,7 +284,7 @@ const Index = () => {
     const fetchData = async () => {
       try {
         if(user_id){
-          const response = await axios.get(
+          const response = await axiosWithCredentials.get(
             `${process.env.REACT_APP_BACKEND_URL}/getUserData/${user_id}`
           );
           setUserData(response.data.user_data);
