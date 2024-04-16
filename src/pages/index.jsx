@@ -515,6 +515,8 @@ const handleLogout = async () => {
                     </div>
                   )}
                 </div>
+                {userId && recipientId ? (
+                  <>
                 <div className="flex-1 ml-4">
                   <input
                     type="text"
@@ -534,6 +536,10 @@ const handleLogout = async () => {
                     Send
                   </button>
                 </div>
+                </>
+                ):(
+                  null
+                )}
               </div>
             </div>
             {userId && recipientId ? (
