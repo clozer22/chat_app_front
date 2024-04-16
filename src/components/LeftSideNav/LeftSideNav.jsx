@@ -12,8 +12,8 @@ import SuccessModal from "../Modals/SuccessModal";
 import ErrorModal from "../Modals/ErrorModal";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Profile from "../Profile/Profile";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const LeftSideNav = ({ ...props }) => {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ const LeftSideNav = ({ ...props }) => {
   const [showSettingButton, setShowSettingButton] = useState(false);
   const [showSettingForm, setShowSettingForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const newlyAdded = () => toast.success("Friend request sent")
+  const newlyAdded = () => toast.success("Friend request sent");
   const [showPassword, setShowPassword] = useState({
     current: false,
     new: false,
@@ -33,8 +33,8 @@ const LeftSideNav = ({ ...props }) => {
   });
   const [backgroundImage, setBackgroundImage] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const alreadyFriend = () => toast.error("This user is already your friend")
-  const notExist = () => toast.error("This user doesn't exist!")
+  const alreadyFriend = () => toast.error("This user is already your friend");
+  const notExist = () => toast.error("This user doesn't exist!");
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -60,10 +60,13 @@ const LeftSideNav = ({ ...props }) => {
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/changeCover`, {
-        cover_img: backgroundImage,
-        user_id: user_id,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/changeCover`,
+        {
+          cover_img: backgroundImage,
+          user_id: user_id,
+        }
+      );
       if (response.data.message === "cover changed") {
         console.log("cover changed");
         console.log(backgroundImage);
@@ -79,8 +82,6 @@ const LeftSideNav = ({ ...props }) => {
   const handleShowModal = () => {
     setShowModal(!showModal);
   };
-
-  
 
   const togglePasswordVisibility = (input) => {
     setShowPassword((prevState) => ({
@@ -116,7 +117,7 @@ const LeftSideNav = ({ ...props }) => {
 
       if (response.data.message === "Successfully sent") {
         console.log(response.data.message);
-        newlyAdded()
+        newlyAdded();
         return;
       }
 
@@ -139,9 +140,12 @@ const LeftSideNav = ({ ...props }) => {
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/acceptFriend`, {
-        user_id: userId,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/acceptFriend`,
+        {
+          user_id: userId,
+        }
+      );
 
       if (response.data.message === "accepted") {
         return console.log("accepted");
@@ -157,9 +161,12 @@ const LeftSideNav = ({ ...props }) => {
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/rejectRequest`, {
-        user_id: userId,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/rejectRequest`,
+        {
+          user_id: userId,
+        }
+      );
 
       if (response.data.message === "rejected") {
         return console.log("accepted");
@@ -298,9 +305,7 @@ const LeftSideNav = ({ ...props }) => {
                 </h2>
                 {props.friendReq.map((user, index) => (
                   <div key={user.friendship_id}>
-                    <div
-                      className="flex items-center mt-1 justify-between border border-gray-600 px-2 py-2 rounded-md"
-                    >
+                    <div className="flex items-center mt-1 justify-between border border-gray-600 px-2 py-2 rounded-md">
                       <div>
                         <img src="../../assets/defaultPic.png" alt="" />
                         <h1 className="text-white">
@@ -412,7 +417,9 @@ const LeftSideNav = ({ ...props }) => {
                       >
                         {user.first_name} {user.last_name}
                       </p>
-                      <p className="text-xs text-white">{lastMessageTime}</p>
+                      <p className="text-xs text-white text-ellipsis">
+                        {lastMessageTime}
+                      </p>
                     </div>
                     <div className="flex">
                       <p className="text-white mt-1 text-end text-sm">
@@ -420,7 +427,11 @@ const LeftSideNav = ({ ...props }) => {
                           ? "You: "
                           : ""}
                         {lastMessage && (
-                          <span className="px-1 text-ellipsis">{lastMessage.message}</span>
+                          <span className="px-1">
+                            {lastMessage.message.length > 8
+                              ? `${lastMessage.message.substring(0, 8)}...`
+                              : lastMessage.message}
+                          </span>
                         )}
                       </p>
                     </div>
@@ -454,60 +465,59 @@ const LeftSideNav = ({ ...props }) => {
         )}
       </div>
       <div className="w-full bg-gray-900 h-[4.5rem]">
-        {props.userData && props.userData.map((user, index) => (
-          <div key={user.user_id} className=" grid grid-cols-5">
-            <div
-              className="flex justify-start items-center gap-2 p-2 col-span-3"
-            >
-              <img
-                src={require(`../../assets/${
-                  user.profile_img ? user.profile_img : "defaultPic.png"
-                }`)}
-                className={`h-12 w-12 border-2 rounded-full ${
-                  user.status === "Active Now"
-                    ? "border-green-500"
-                    : "border-gray-500"
-                }`}
-                alt=""
-              />
-              <div>
-                <h1
-                  className="text-white text-md tracking-widest whitespace-nowrap"
-                  style={{ fontFamily: "Curetro" }}
-                >
-                  {user.first_name} {user.last_name}
-                </h1>
-                <p className="text-white tracking-wider font-bold">
-                  ID: {user.user_id}
-                </p>
-              </div>
-            </div>
-            <div className="flex justify-center items-center col-span-2 gap-1">
-              <button
-                onClick={props.handleLogout}
-                className="px-2 py-1 border-none bg-gray-600 hover:bg-gray-700 duration-300 text-white rounded-md"
-              >
-                Log out
-              </button>
-              <div className="relative">
-                {showSettingButton && (
-                  <div className="absolute bg-gray-600 top-[-3rem] rounded-md left-[-4rem]">
-                    <button
-                      onClick={handleOpenSettings}
-                      className="whitespace-nowrap px-2 py-2 text-white"
-                    >
-                      User Profile
-                    </button>
-                  </div>
-                )}
-                <IoIosSettings
-                  onClick={handleSettings}
-                  className="text-white text-2xl cursor-pointer"
+        {props.userData &&
+          props.userData.map((user, index) => (
+            <div key={user.user_id} className=" grid grid-cols-5">
+              <div className="flex justify-start items-center gap-2 p-2 col-span-3">
+                <img
+                  src={require(`../../assets/${
+                    user.profile_img ? user.profile_img : "defaultPic.png"
+                  }`)}
+                  className={`h-12 w-12 border-2 rounded-full ${
+                    user.status === "Active Now"
+                      ? "border-green-500"
+                      : "border-gray-500"
+                  }`}
+                  alt=""
                 />
+                <div>
+                  <h1
+                    className="text-white text-md tracking-widest whitespace-nowrap"
+                    style={{ fontFamily: "Curetro" }}
+                  >
+                    {user.first_name} {user.last_name}
+                  </h1>
+                  <p className="text-white tracking-wider font-bold">
+                    ID: {user.user_id}
+                  </p>
+                </div>
+              </div>
+              <div className="flex justify-center items-center col-span-2 gap-1">
+                <button
+                  onClick={props.handleLogout}
+                  className="px-2 py-1 border-none bg-gray-600 hover:bg-gray-700 duration-300 text-white rounded-md"
+                >
+                  Log out
+                </button>
+                <div className="relative">
+                  {showSettingButton && (
+                    <div className="absolute bg-gray-600 top-[-3rem] rounded-md left-[-4rem]">
+                      <button
+                        onClick={handleOpenSettings}
+                        className="whitespace-nowrap px-2 py-2 text-white"
+                      >
+                        User Profile
+                      </button>
+                    </div>
+                  )}
+                  <IoIosSettings
+                    onClick={handleSettings}
+                    className="text-white text-2xl cursor-pointer"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );
