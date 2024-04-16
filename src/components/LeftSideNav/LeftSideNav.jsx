@@ -307,7 +307,7 @@ const LeftSideNav = ({ ...props }) => {
                   <div key={user.friendship_id}>
                     <div className="flex items-center mt-1 justify-between border border-gray-600 px-2 py-2 rounded-md">
                       <div>
-                        <img src={`${process.env.REACT_APP_BACKEND_URL}/uploaded_img/defaultPic.png`} alt="" />
+                        <img className="h-12 w-12 rounded-full" src={`${process.env.REACT_APP_BACKEND_URL}/uploaded_img/defaultPic.png`} alt="" />
                         <h1 className="text-white">
                           {user.first_name} {user.last_name}
                         </h1>
