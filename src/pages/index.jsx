@@ -19,6 +19,8 @@ import LeftSideNav from "../components/LeftSideNav/LeftSideNav";
 import RightSideNav from "../components/RightSideNav/RightSideNav";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Snake from 'snake-game-react';
+
 const Index = () => {
   const [messages, setMessage] = useState([]);
   const [newMessage, setNewMessage] = useState("");
