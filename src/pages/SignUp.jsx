@@ -24,6 +24,7 @@ const SignUp = () => {
   });
 
   const axiosWithoutCredentials = axios.create({
+    baseURL: process.env.REACT_APP_BACKEND_URL,
     withCredentials: false,
   });
 
@@ -46,7 +47,7 @@ const SignUp = () => {
       setIsLoading(true);
       try {
         await new Promise((resolve) => setTimeout(resolve, 5000));
-        const response = await axiosWithCredentials.post(
+        const response = await axiosWithoutCredentials.post(
           `${process.env.REACT_APP_BACKEND_URL}/register`,
           values
         );
