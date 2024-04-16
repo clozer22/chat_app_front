@@ -198,7 +198,7 @@ const Index = () => {
     const userId = Cookies.get("user_id");
     setLoading(true);
     try {
-      if(user_id){
+      if(userId){
         await new Promise((resolve) => setTimeout(resolve, 2000));
         axiosWithCredentials
           .post(`${process.env.REACT_APP_BACKEND_URL}/logout`, { userId: userId })
