@@ -17,7 +17,6 @@ import Loading from "../components/Loading/Loading";
 import { useFetchUser } from "../components/CustomHook/CustomHook";
 import LeftSideNav from "../components/LeftSideNav/LeftSideNav";
 import RightSideNav from "../components/RightSideNav/RightSideNav";
-import Snake from 'snake-game-react';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const Index = () => {
@@ -500,7 +499,6 @@ const Index = () => {
                           className="text-[2rem] text-white absolute top-[15rem]"
                           style={{ fontFamily: "Curetro" }}
                         >
-                        
                           NO CHATS SELECTED
                         </h1>
                       </div>
@@ -509,6 +507,8 @@ const Index = () => {
                 </div>
               </ScrollToBottom>
               {userId && recipientId ? (
+
+
               <div className="bg-gray-900 px-4 py-4 flex items-center">
                 <div>
                   <button
