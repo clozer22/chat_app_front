@@ -14,7 +14,7 @@ const Direction = {
 
 const SnakeGame = () => {
   const [snake, setSnake] = useState([{ x: 10, y: 10 }]);
-  const [food, setFood] = useState(randomPosition());
+  const [food, setFood] = useState({ x: 0, y: 0 });
   const [direction, setDirection] = useState(Direction.RIGHT);
   const [speed, setSpeed] = useState(INITIAL_SPEED);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -22,6 +22,8 @@ const SnakeGame = () => {
   const gameLoopRef = useRef();
 
   useEffect(() => {
+    // Generate initial random position for the food after the component mounts
+    setFood(randomPosition());
     startGame();
     return () => stopGame();
   }, []);
