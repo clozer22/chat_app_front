@@ -19,6 +19,7 @@ import LeftSideNav from "../components/LeftSideNav/LeftSideNav";
 import RightSideNav from "../components/RightSideNav/RightSideNav";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import SnakeGame from "../components/Game/SnakeGame";
 
 const Index = () => {
   const [messages, setMessage] = useState([]);
@@ -496,12 +497,7 @@ const Index = () => {
                       )
                     ) : (
                       <div className="flex justify-center items-center h-full">
-                        <h1
-                          className="text-[2rem] text-white absolute top-[15rem]"
-                          style={{ fontFamily: "Curetro" }}
-                        >
-                          NO CHATS SELECTED
-                        </h1>
+                      <SnakeGame />
                       </div>
                     )}
                   </div>
