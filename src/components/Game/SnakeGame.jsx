@@ -136,7 +136,7 @@ const SnakeGame = () => {
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <div className="border border-black rounded-lg p-4">
+      <div className="border border-black rounded-lg p-4 w-1/2 h-1/2">
         {isGameOver && <div className="text-3xl text-red-500 font-bold text-center">Game Over</div>}
         <div className="grid grid-cols-20 gap-1">
           {Array.from({ length: ROWS }).map((_, rowIndex) => (
